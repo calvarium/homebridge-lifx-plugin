@@ -14,6 +14,7 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private lifxClient: any = new Lifx.Client();
 
   // this is used to track restored cached accessories

@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "displayName": "Lifx Plugin",
   "name": "homebridge-lifx-plugin",
   "version": "0.1.0",
