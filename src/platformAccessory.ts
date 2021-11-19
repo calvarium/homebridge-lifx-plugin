@@ -1,105 +1,100 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
-import { ExampleHomebridgePlatform } from './platform';
+import { LifxHomebridgePlatform } from './platform';
+
+import Bulb from './bulb';
 
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class ExamplePlatformAccessory {
-  private service: Service;
 
+export class LifxPlatformAccessory {
+  private service: Service;
+  private informationService : Service;
+
+  //Count of requests for watcher
+  private pollRequests = 0;
   /**
    * These are just used to create a working example
    * You should implement your own code to track the state of your accessory
    */
-  private exampleStates = {
-    On: false,
-    Brightness: 100,
+  private States = {
+    color: { hue: 120, saturation: 0, brightness: 100, kelvin: 8994 },
+    power: 0,
+    label: '',
+  };
+
+  private Settings = {
+    Duration: 0,
+    BrightnessDuration: 300,
+    ColorDuration: 300,
+  };
+
+  private HardwareInfo = {
+    vendorName : 'LIFX',
+    productName : 'Unknown',
+    productFeatures : { color: false, infrared: false, multizone: false },
+  };
+
+  private FirmwareVersion = {
+    majorVersion : 0,
+    minorVersion : 1,
   };
 
   constructor(
-    private readonly platform: ExampleHomebridgePlatform,
+    private readonly platform: LifxHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
+    private readonly light,
+    settings,
   ) {
 
-    // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+    this.Settings = settings;
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
     this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
+    this.informationService = this.accessory.getService(this.platform.Service.AccessoryInformation)!;
 
-    // set the service name, this is what is displayed as the default name on the Home app
-    // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
+    // set accessory information
+    this.setFirmwareVersion();
+    this.setHardwareInformation(() => {
+      this.updateStates(() => {
+        // set the service name, this is what is displayed as the default name on the Home app
+        // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
+        this.service.setCharacteristic(this.platform.Characteristic.Name, this.States.label);
 
-    // each service must implement at-minimum the "required characteristics" for the given service type
-    // see https://developers.homebridge.io/#/service/Lightbulb
+        // each service must implement at-minimum the "required characteristics" for the given service type
+        // see https://developers.homebridge.io/#/service/Lightbulb
 
-    // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+        // register handlers for the On/Off Characteristic
+        this.service.getCharacteristic(this.platform.Characteristic.On)
+          .onSet(this.setOn.bind(this)) ;        // SET - bind to the `setOn` method below
 
-    // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+        //diabled through many home kit calls || manually updating charactaristic on
+        // .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
 
-    /**
-     * Creating multiple services of the same type.
-     *
-     * To avoid "Cannot add a Service with the same UUID another Service without also defining a unique 'subtype' property." error,
-     * when creating multiple services of the same type, you need to use the following syntax to specify a name and subtype id:
-     * this.accessory.getService('NAME') || this.accessory.addService(this.platform.Service.Lightbulb, 'NAME', 'USER_DEFINED_SUBTYPE_ID');
-     *
-     * The USER_DEFINED_SUBTYPE must be unique to the platform accessory (if you platform exposes multiple accessories, each accessory
-     * can use the same sub type id.)
-     */
+        // register handlers for the Brightness Characteristic
+        this.service.getCharacteristic(this.platform.Characteristic.Brightness)
+          .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
 
-    // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+        this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+          .onSet(this.setKelvin.bind(this));       // SET - bind to the 'setBrightness` method below
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
+        if (this.HardwareInfo.productFeatures.color) {
+          this.service.getCharacteristic(this.platform.Characteristic.Hue)
+            .onSet(this.setHue.bind(this));       // SET - bind to the 'setBrightness` method below
 
-    /**
-     * Updating characteristics values asynchronously.
-     *
-     * Example showing how to update the state of a Characteristic asynchronously instead
-     * of using the `on('get')` handlers.
-     * Here we change update the motion sensor trigger states on and off every 10 seconds
-     * the `updateCharacteristic` method.
-     *
-     */
-    let motionDetected = false;
-    setInterval(() => {
-      // EXAMPLE - inverse the trigger
-      motionDetected = !motionDetected;
+          this.service.getCharacteristic(this.platform.Characteristic.Saturation)
+            .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
+        }
 
-      // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
+        // this.watchState((state) => this.setStates(state));
 
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
-    }, 10000);
-  }
+      });
+    });
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
-   */
-  async setOn(value: CharacteristicValue) {
-    // implement your own code to turn your device on/off
-    this.exampleStates.On = value as boolean;
-
-    this.platform.log.debug('Set Characteristic On ->', value);
   }
 
   /**
@@ -116,26 +111,122 @@ export class ExamplePlatformAccessory {
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
   async getOn(): Promise<CharacteristicValue> {
-    // implement your own code to check if the device is on
-    const isOn = this.exampleStates.On;
-
+    const isOn = this.States.power;
     this.platform.log.debug('Get Characteristic On ->', isOn);
-
-    // if you need to return an error to show the device as "Not Responding" in the Home app:
-    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-
     return isOn;
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, changing the Brightness
-   */
-  async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
-    this.exampleStates.Brightness = value as number;
+  async setOn(value: CharacteristicValue) {
+    this.States.power = value as number;
 
+    if (this.States.power > 0) {
+      this.light.on(this.Settings.Duration);
+    } else{
+      this.light.off(this.Settings.Duration);
+    }
+
+    this.platform.log.debug('Set Characteristic On ->', value);
+  }
+
+  async setBrightness(value: CharacteristicValue) {
+    this.States.color.brightness = value as number;
+    Bulb.update(this.light, this.States, this.Settings.BrightnessDuration);
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
+  }
+
+  async setHue(value: CharacteristicValue){
+    this.States.color.hue = value as number;
+    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+    this.platform.log.debug('Set Characteristic Hue -> ', value);
+  }
+
+  async setSaturation(value: CharacteristicValue){
+    this.States.color.saturation = value as number;
+    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+    this.platform.log.debug('Set Characteristic Saturation -> ', value);
+  }
+
+  async setKelvin(value: CharacteristicValue){
+    this.States.color.hue = 0;
+    this.States.color.saturation = 0;
+    this.States.color.kelvin = Bulb.KELVIN_SCALE / (value as number);
+    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+    this.platform.log.debug('Set Characteristic Kelvin -> ', value);
+  }
+
+  handleError(err){
+    this.platform.log.error(err);
+    // if you need to return an error to show the device as "Not Responding" in the Home app:
+    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+  }
+
+  async watchState(callback){
+    setInterval(() => {
+      Bulb.getStates(this.light, (state)=>{
+        if (this.States !== state) {
+          this.pollRequests++;
+          if (this.pollRequests >= 3 ) {
+            callback(state);
+            this.pollRequests = 0;
+          }
+        } else{
+          this.pollRequests = 0;
+        }
+      }, (err) => this.handleError(err));
+    }, 3000);
+  }
+
+  async setStates(state){
+    this.States = state;
+    this.setLightbuldCharacteristics(this.States);
+  }
+
+  async updateStates(callback){
+    Bulb.getStates(this.light, (state) => {
+      this.setStates(state);
+      callback();
+    }, (err) => this.handleError(err));
+  }
+
+  async setLightbuldCharacteristics(state){
+    this.setLightbulbCharacteristic(this.platform.Characteristic.On, state.power);
+    this.setLightbulbCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
+    this.setLightbulbCharacteristic(this.platform.Characteristic.Saturation, state.color.saturation);
+    this.setLightbulbCharacteristic(this.platform.Characteristic.Brightness, state.color.brightness);
+    this.setLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.KELVIN_SCALE / state.color.kelvin);
+  }
+
+  async setHardwareInformation(callback){
+    Bulb.getHardwareInformation(this.light, (info) => {
+      this.HardwareInfo = info;
+      this.setAccessoryInformationCharacteristics(this.HardwareInfo);
+      callback();
+    }, (err) => this.handleError(err));
+  }
+
+  async setAccessoryInformationCharacteristics(info){
+    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.Manufacturer, info.vendorName);
+    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.Model, info.productName);
+    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.SerialNumber, this.light.id);
+  }
+
+  async setFirmwareVersion(){
+    Bulb.getFirmwareVersion(this.light, (version) => {
+      this.FirmwareVersion = version;
+      this.setFirmwareRevision(this.FirmwareVersion.majorVersion + '.' + this.FirmwareVersion.minorVersion);
+    }, (err) => this.handleError(err));
+  }
+
+  async setFirmwareRevision(version){
+    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.FirmwareRevision, version);
+  }
+
+  async setAccessoryInformationCharacteristic(characteristic, value : CharacteristicValue){
+    this.informationService.setCharacteristic(characteristic, value);
+  }
+
+  async setLightbulbCharacteristic(characteristic, value : CharacteristicValue){
+    this.service.setCharacteristic(characteristic, value);
   }
 
 }

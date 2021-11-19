@@ -1,16 +1,16 @@
 {
   "private": true,
-  "displayName": "Plugin Name",
-  "name": "homebridge-plugin-name",
-  "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "displayName": "Lifx Plugin",
+  "name": "homebridge-lifx-plugin",
+  "version": "0.1.0",
+  "description": "This plugin is a bridge between lifx smart bulbs and your apple homekit",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "git://github.com/calvarium/homebridge-lifx-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/calvarium/homebridge-lifx-plugin/issues"
   },
   "engines": {
     "node": ">=14.18.1",
@@ -26,7 +26,9 @@
   "keywords": [
     "homebridge-plugin"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "lifx-lan-client": "^1.1.0"
+  },
   "devDependencies": {
     "@types/node": "^16.10.9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",

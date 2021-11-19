@@ -1,16 +1,186 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "LifxPlugin",
   "pluginType": "platform",
   "singular": true,
+  "headerDisplay": "",
+  "footerDisplay": "",
   "schema": {
     "type": "object",
     "properties": {
       "name": {
-        "title": "Name",
+        "title": "Platform Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "Lifx Plugin"
+      },
+      "duration": {
+        "title": "Duration",
+        "type": "integer",
+        "default": 0,
+        "minimum": 0,
+        "description": "Time to fade on/off in milliseconds",
+        "condition": {
+          "functionBody": "return model.autoDiscover === true;"
+        }
+      },
+      "brightnessDuration": {
+        "title": "Brightness Duration",
+        "type": "integer",
+        "default": 300,
+        "minimum": 0,
+        "description": "Time to fade in milliseconds for changing brightness",
+        "condition": {
+          "functionBody": "return model.autoDiscover === true;"
+        }
+      },
+      "colorDuration": {
+        "title": "Color Duration",
+        "type": "integer",
+        "default": 300,
+        "minimum": 0,
+        "description": "Time to fade in milliseconds for changing color",
+        "condition": {
+          "functionBody": "return model.autoDiscover === true;"
+        }
+      },
+      "broadcast": {
+        "title": "Broadcast Address",
+        "type": "string",
+        "format": "hostname",
+        "default": "255.255.255.255"
+      },
+      "lightOfflineTolerance": {
+        "title": "Offline Tolerance",
+        "type": "integer",
+        "default": 3,
+        "minimum": 1,
+        "description": "A light is offline if not seen for the given amount of discoveries"
+      },
+      "messageHandlerTimeout": {
+        "title": "Handler Timeout",
+        "type": "integer",
+        "default": 45000,
+        "minimum": 100,
+        "description": "In ms, if not answer in time an error is provided to get methods"
+      },
+      "resendPacketDelay": {
+        "title": "Resend Packet Delay",
+        "type": "integer",
+        "default": 150,
+        "minimum": 50,
+        "description": "Delay between packages if light did not receive a packet (for setting methods with callback)"
+      },
+      "resendMaxTimes": {
+        "title": "Resend Packet Max Times",
+        "type": "integer",
+        "default": 3,
+        "minimum": 0,
+        "description": "Resend packages x times if light did not receive a packet (for setting methods with callback)"
+      },
+      "debug": {
+        "title": "Enable Debug Mode",
+        "type": "boolean",
+        "default": false
+      },
+      "autoDiscover": {
+        "title": "Enable Auto Discover",
+        "type": "boolean",
+        "default": true,
+        "description": "Discovers bulbs by broadcasting. If disabled, bulbs can be added manually"
+      },
+      "bulbs": {
+        "type": "array",
+        "condition": {
+          "functionBody": "return model.autoDiscover === false;"
+        },
+        "items": {
+          "title": "Bulbs",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "placeholder": "Enter bulb name..."
+            },
+            "address": {
+              "type": "string",
+              "format": "hostname",
+              "placeholder": "xxx.xxx.xxx.xxx"
+            },
+            "duration": {
+              "title": "Duration",
+              "type": "integer",
+              "placeholder": 1000,
+              "minimum": 0,
+              "description": "Time to fade on/off in milliseconds"
+            },
+            "brightnessDuration": {
+              "title": "Brightness Duration",
+              "type": "integer",
+              "placeholder": 500,
+              "minimum": 0,
+              "description": "Time to fade in milliseconds for changing brightness"
+            },
+            "colorDuration": {
+              "title": "Color Duration",
+              "type": "integer",
+              "placeholder": 500,
+              "minimum": 0,
+              "description": "Time to fade in milliseconds for changing color"
+            }
+          }
+        }
       }
     }
-  }
+  },
+  "layout": [
+    {
+      "key": "name",
+      "type": "string"
+    },
+    {
+      "key": "autoDiscover",
+      "type": "boolean"
+    },
+    {
+      "key": "duration",
+      "type": "number"
+    },
+    {
+      "key": "brightnessDuration",
+      "type": "number"
+    },
+    {
+      "key": "colorDuration",
+      "type": "number"
+    },
+    {
+      "key": "bulbs",
+      "type": "array",
+      "orderable": false,
+      "buttonText": "Add Bulb",
+      "items": [
+        "bulbs[].name",
+        "bulbs[].address",
+        "bulbs[].duration",
+        "bulbs[].brightnessDuration",
+        "bulbs[].colorDuration"
+      ]
+    },
+    {
+      "key": "advanced",
+      "type": "section",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "broadcast",
+        "lightOfflineTolerance",
+        "messageHandlerTimeout",
+        "resendPacketDelay",
+        "resendMaxTimes",
+        "debug"
+      ]
+    }
+  ]
 }
