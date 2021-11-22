@@ -149,7 +149,7 @@ export class LifxPlatformAccessory {
   async setKelvin(value: CharacteristicValue){
     this.States.color.hue = 0;
     this.States.color.saturation = 0;
-    this.States.color.kelvin = Bulb.KELVIN_SCALE / (value as number);
+    this.States.color.kelvin = Bulb.KELVIN_SCALE * (value as number);
     Bulb.update(this.light, this.States, this.Settings.ColorDuration);
     this.platform.log.debug('Set Characteristic Kelvin -> ', value);
   }
@@ -193,7 +193,7 @@ export class LifxPlatformAccessory {
     this.setLightbulbCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
     this.setLightbulbCharacteristic(this.platform.Characteristic.Saturation, state.color.saturation);
     this.setLightbulbCharacteristic(this.platform.Characteristic.Brightness, state.color.brightness);
-    this.setLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.KELVIN_SCALE / state.color.kelvin);
+    this.setLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.KELVIN_SCALE * state.color.kelvin);
   }
 
   async setHardwareInformation(callback){

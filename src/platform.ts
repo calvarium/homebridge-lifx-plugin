@@ -101,7 +101,7 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
     if (accessory) {
       // the accessory already exists
       accessory.getService(this.Service.Lightbulb)!
-        .setCharacteristic(characteristic, value);
+        .updateCharacteristic(characteristic, value);
     }
   }
 

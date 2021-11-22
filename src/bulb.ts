@@ -1,5 +1,5 @@
 export default class Bulb{
-  static KELVIN_SCALE = 1200000;
+  static KELVIN_SCALE = 0.05555555555555555;
 
   static getStates(light, callback, errorFallback){
     // this.bulbWrapper(light.getState, callback, errorFallback);
