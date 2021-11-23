@@ -149,7 +149,8 @@ export class LifxPlatformAccessory {
   async setKelvin(value: CharacteristicValue){
     this.States.color.hue = 0;
     this.States.color.saturation = 0;
-    this.States.color.kelvin = Bulb.KELVIN_SCALE * (value as number);
+    this.States.color.kelvin = Bulb.getKelvin(value as number);
+    this.updateLightbuldCharacteristics(this.States);
     Bulb.update(this.light, this.States, this.Settings.ColorDuration);
     this.platform.log.debug('Set Characteristic Kelvin -> ', value);
   }
@@ -193,7 +194,15 @@ export class LifxPlatformAccessory {
     this.setLightbulbCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
     this.setLightbulbCharacteristic(this.platform.Characteristic.Saturation, state.color.saturation);
     this.setLightbulbCharacteristic(this.platform.Characteristic.Brightness, state.color.brightness);
-    this.setLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.KELVIN_SCALE * state.color.kelvin);
+    this.setLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(state.color.kelvin));
+  }
+
+  async updateLightbuldCharacteristics(state){
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.On, state.power);
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.Saturation, state.color.saturation);
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.Brightness, state.color.brightness);
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(state.color.kelvin));
   }
 
   async setHardwareInformation(callback){
@@ -227,6 +236,10 @@ export class LifxPlatformAccessory {
 
   async setLightbulbCharacteristic(characteristic, value : CharacteristicValue){
     this.service.setCharacteristic(characteristic, value);
+  }
+
+  async updateLightbulbCharacteristic(characteristic, value : CharacteristicValue){
+    this.service.updateCharacteristic(characteristic, value);
   }
 
 }

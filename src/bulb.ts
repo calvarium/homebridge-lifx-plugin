@@ -44,5 +44,13 @@ export default class Bulb{
     });
   }
 
+  static getColorTemperatur(kelvin){
+    return Math.round((640) / (10500/kelvin));
+  }
+
+  static getKelvin(value){
+    return 10500 - Math.round((10500) / (640/value));
+  }
+
 }
 
