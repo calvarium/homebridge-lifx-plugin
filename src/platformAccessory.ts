@@ -43,19 +43,23 @@ export class LifxPlatformAccessory {
     minorVersion : 1,
   };
 
+  public UUID : string;
+
   constructor(
     private readonly platform: LifxHomebridgePlatform,
-    private readonly accessory: PlatformAccessory,
+    public readonly Accessory: PlatformAccessory,
     private readonly light,
     settings,
   ) {
+
+    this.UUID = Accessory.UUID;
 
     this.Settings = settings;
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
-    this.informationService = this.accessory.getService(this.platform.Service.AccessoryInformation)!;
+    this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
+    this.informationService = this.Accessory.getService(this.platform.Service.AccessoryInformation)!;
 
     // set accessory information
     this.setFirmwareVersion();
@@ -90,7 +94,7 @@ export class LifxPlatformAccessory {
             .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
         }
 
-        // this.watchState((state) => this.setStates(state));
+        this.watchState((state) => this.setStates(state));
 
       });
     });
@@ -125,7 +129,7 @@ export class LifxPlatformAccessory {
       this.light.off(this.Settings.Duration);
     }
 
-    this.platform.log.debug('Set Characteristic On ->', value);
+    this.platform.log.debug('${this.States.label}Set Characteristic On ->', value);
   }
 
   async setBrightness(value: CharacteristicValue) {
@@ -150,7 +154,7 @@ export class LifxPlatformAccessory {
     this.States.color.hue = 0;
     this.States.color.saturation = 0;
     this.States.color.kelvin = Bulb.getKelvin(value as number);
-    this.updateLightbuldCharacteristics(this.States);
+    this.updateLightbuldCharacteristics();
     Bulb.update(this.light, this.States, this.Settings.ColorDuration);
     this.platform.log.debug('Set Characteristic Kelvin -> ', value);
   }
@@ -167,6 +171,7 @@ export class LifxPlatformAccessory {
         if (this.States !== state) {
           this.pollRequests++;
           if (this.pollRequests >= 3 ) {
+            this.platform.log.debug('Changes discovered on the light', this.States, state);
             callback(state);
             this.pollRequests = 0;
           }
@@ -177,11 +182,6 @@ export class LifxPlatformAccessory {
     }, 3000);
   }
 
-  async setStates(state){
-    this.States = state;
-    this.setLightbuldCharacteristics(this.States);
-  }
-
   async updateStates(callback){
     Bulb.getStates(this.light, (state) => {
       this.setStates(state);
@@ -189,20 +189,17 @@ export class LifxPlatformAccessory {
     }, (err) => this.handleError(err));
   }
 
-  async setLightbuldCharacteristics(state){
-    this.setLightbulbCharacteristic(this.platform.Characteristic.On, state.power);
-    this.setLightbulbCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
-    this.setLightbulbCharacteristic(this.platform.Characteristic.Saturation, state.color.saturation);
-    this.setLightbulbCharacteristic(this.platform.Characteristic.Brightness, state.color.brightness);
-    this.setLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(state.color.kelvin));
+  async setStates(state){
+    this.States = state;
+    this.updateLightbuldCharacteristics();
   }
 
-  async updateLightbuldCharacteristics(state){
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.On, state.power);
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.Hue, state.color.hue);
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.Saturation, state.color.saturation);
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.Brightness, state.color.brightness);
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(state.color.kelvin));
+  async updateLightbuldCharacteristics(){
+    this.updateOn();
+    this.updateHue();
+    this.updateSaturation();
+    this.updateBrightness();
+    this.updateKelvin ();
   }
 
   async setHardwareInformation(callback){
@@ -240,6 +237,43 @@ export class LifxPlatformAccessory {
 
   async updateLightbulbCharacteristic(characteristic, value : CharacteristicValue){
     this.service.updateCharacteristic(characteristic, value);
+  }
+
+  updateOn(){
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.On, this.States.power);
+  }
+
+  updateHue(){
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.Hue, this.States.color.hue);
+  }
+
+  updateSaturation(){
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.Saturation, this.States.color.saturation);
+  }
+
+  updateBrightness(){
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.Brightness, this.States.color.brightness);
+  }
+
+  updateKelvin (){
+    this.updateLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(this.States.color.kelvin));
+  }
+
+  setPower(value){
+    this.States.power = value;
+    this.updateOn();
+  }
+
+  public async SetOnline(){
+    this.setPower(1);
+  }
+
+  public async SetOffline(){
+    this.setPower(0);
+  }
+
+  public GetName(){
+    return this.States.label;
   }
 
 }
