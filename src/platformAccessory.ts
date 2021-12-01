@@ -14,8 +14,10 @@ export class LifxPlatformAccessory {
   private service: Service;
   private informationService : Service;
 
-  //Count of requests for watcher
-  private pollRequests = 0;
+  private online = false;
+
+  private watcher;
+
   /**
    * These are just used to create a working example
    * You should implement your own code to track the state of your accessory
@@ -56,6 +58,8 @@ export class LifxPlatformAccessory {
 
     this.Settings = settings;
 
+    this.online = true;
+
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
     this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
@@ -94,7 +98,7 @@ export class LifxPlatformAccessory {
             .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
         }
 
-        // this.watchState((state) => this.setStates(state));
+        this.resetWatcher();
 
       });
     });
@@ -121,42 +125,75 @@ export class LifxPlatformAccessory {
   }
 
   async setOn(value: CharacteristicValue) {
-    this.States.power = value as number;
+    this.resetWatcher();
+    if (!this.online) {
+      this.updateLightbuldCharacteristics();
+      //place Timeout right here
+    }else {
+      this.States.power = value as number;
 
-    if (this.States.power > 0) {
-      this.light.on(this.Settings.Duration);
-    } else{
-      this.light.off(this.Settings.Duration);
+      if (this.States.power > 0) {
+        this.light.on(this.Settings.Duration);
+      } else{
+        this.light.off(this.Settings.Duration);
+      }
+
+      this.platform.log.debug('Set Characteristic On ->', value);
     }
-
-    this.platform.log.debug('Set Characteristic On ->', value);
   }
 
   async setBrightness(value: CharacteristicValue) {
-    this.States.color.brightness = value as number;
-    Bulb.update(this.light, this.States, this.Settings.BrightnessDuration);
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    this.resetWatcher();
+    if (!this.online) {
+      this.updateLightbuldCharacteristics();
+      //place Timeout right here
+    }else {
+      this.States.color.brightness = value as number;
+      Bulb.update(this.light, this.States, this.Settings.BrightnessDuration);
+      // this.updateLightbuldCharacteristics();
+      this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    }
   }
 
   async setHue(value: CharacteristicValue){
-    this.States.color.hue = value as number;
-    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
-    this.platform.log.debug('Set Characteristic Hue -> ', value);
+    this.resetWatcher();
+    if (!this.online) {
+      this.updateLightbuldCharacteristics();
+      //place Timeout right here
+    }else {
+      this.States.color.hue = value as number;
+      Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+      // this.updateLightbuldCharacteristics();
+      this.platform.log.debug('Set Characteristic Hue -> ', value);
+    }
   }
 
   async setSaturation(value: CharacteristicValue){
-    this.States.color.saturation = value as number;
-    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
-    this.platform.log.debug('Set Characteristic Saturation -> ', value);
+    this.resetWatcher();
+    if (!this.online) {
+      this.updateLightbuldCharacteristics();
+      //place Timeout right here
+    }else {
+      this.States.color.saturation = value as number;
+      Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+      // this.updateLightbuldCharacteristics();
+      this.platform.log.debug('Set Characteristic Saturation -> ', value);
+    }
   }
 
   async setKelvin(value: CharacteristicValue){
-    this.States.color.hue = 0;
-    this.States.color.saturation = 0;
-    this.States.color.kelvin = Bulb.getKelvin(value as number);
-    this.updateLightbuldCharacteristics();
-    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
-    this.platform.log.debug('Set Characteristic Kelvin -> ', value);
+    this.resetWatcher();
+    if (!this.online) {
+      this.updateLightbuldCharacteristics();
+      //place Timeout right here
+    }else {
+      this.States.color.hue = 0;
+      this.States.color.saturation = 0;
+      this.States.color.kelvin = Bulb.getKelvin(value as number);
+      // this.updateLightbuldCharacteristics();
+      Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+      this.platform.log.debug('Set Characteristic Kelvin -> ', value);
+    }
   }
 
   handleError(err){
@@ -165,21 +202,19 @@ export class LifxPlatformAccessory {
     // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
   }
 
-  async watchState(callback){
-    setInterval(() => {
-      Bulb.getStates(this.light, (state)=>{
-        if (this.States !== state) {
-          this.pollRequests++;
-          if (this.pollRequests >= 3 ) {
-            this.platform.log.debug('Changes discovered on the light', this.States, state);
-            callback(state);
-            this.pollRequests = 0;
-          }
-        } else{
-          this.pollRequests = 0;
-        }
-      }, (err) => this.handleError(err));
-    }, 3000);
+  async watchState(){
+    this.watcher = setInterval(() => {
+      this.updateStates(() => {
+        this.platform.log.debug('updated', this.States);
+      });
+    }, 5000);
+  }
+
+  async resetWatcher(){
+    if (this.watcher) {
+      clearInterval(this.watcher);
+    }
+    this.watchState();
   }
 
   async updateStates(callback){
@@ -265,10 +300,12 @@ export class LifxPlatformAccessory {
   }
 
   public async SetOnline(){
+    this.online = true;
     this.setPower(1);
   }
 
   public async SetOffline(){
+    this.online = false;
     this.setPower(0);
   }
 
