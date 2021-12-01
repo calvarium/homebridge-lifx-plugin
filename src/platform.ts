@@ -16,7 +16,7 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private lifxClient: any = new Lifx.Client();
-
+  private bulbs;
   // this is used to track restored cached accessories
   public readonly cachedAccessories: PlatformAccessory[] = [];
   public readonly accessories: LifxPlatformAccessory[] = [];
@@ -28,6 +28,10 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
   ) {
 
     this.log.debug('Finished initializing platform:', this.config.name);
+
+    if (this.config.bulbs) {
+      this.bulbs = this.config.bulbs.map(bulb => bulb.address);
+    }
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
     // Dynamic Platform plugins should only register new accessories after this event was fired,
@@ -92,6 +96,7 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
       resendPacketDelay:      this.config.resendPacketDelay,
       resendMaxTimes:         this.config.resendMaxTimes,
       debug:                  this.config.debug,
+      lights:                 this.bulbs || [],
     });
 
   }

@@ -94,7 +94,7 @@ export class LifxPlatformAccessory {
             .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
         }
 
-        this.watchState((state) => this.setStates(state));
+        // this.watchState((state) => this.setStates(state));
 
       });
     });
@@ -129,7 +129,7 @@ export class LifxPlatformAccessory {
       this.light.off(this.Settings.Duration);
     }
 
-    this.platform.log.debug('${this.States.label}Set Characteristic On ->', value);
+    this.platform.log.debug('Set Characteristic On ->', value);
   }
 
   async setBrightness(value: CharacteristicValue) {
