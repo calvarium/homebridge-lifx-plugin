@@ -219,8 +219,13 @@ export class LifxPlatformAccessory {
 
   async updateStates(callback){
     Bulb.getStates(this.light, (state) => {
-      this.setStates(state);
-      callback();
+      if (state !== null) {
+        this.setStates(state);
+        callback();
+      }else{
+        this.States.power = 0;
+        this.updateOn();
+      }
     }, (err) => this.handleError(err));
   }
 
