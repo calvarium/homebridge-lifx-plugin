@@ -1,5 +1,5 @@
 <p align="center">
-   <a href="https://github.com/calvarium/homebridge-lifx-plugin"><img alt="homebridge-lifx-plugin" src="homebridge-lifx-icon.png" width="600px"></a>
+   <a href="https://github.com/calvarium/homebridge-lifx-plugin"><img alt="homebridge-lifx-plugin" src="homebridge-lifx-icon.png" width="200px"></a>
 </p>
 <span align="center">
 
