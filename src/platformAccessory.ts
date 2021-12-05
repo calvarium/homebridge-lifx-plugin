@@ -197,7 +197,8 @@ export class LifxPlatformAccessory {
   }
 
   handleError(err){
-    this.platform.log.error(err);
+    this.platform.log.debug('Bulb throughs error', err);
+    this.SetOffline();
     // if you need to return an error to show the device as "Not Responding" in the Home app:
     // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
   }
@@ -220,11 +221,11 @@ export class LifxPlatformAccessory {
   async updateStates(callback){
     Bulb.getStates(this.light, (state) => {
       if (state !== null) {
+        this.SetOnline();
         this.setStates(state);
         callback();
       }else{
-        this.States.power = 0;
-        this.updateOn();
+        this.SetOffline();
       }
     }, (err) => this.handleError(err));
   }

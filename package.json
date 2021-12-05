@@ -24,7 +24,14 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "homebridge",
+    "plugin",
+    "lifx",
+    "bulb",
+    "smartbulb",
+    "smartlight",
+    "homekit"
   ],
   "dependencies": {
     "lifx-lan-client": "^1.1.0"
