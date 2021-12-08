@@ -8,6 +8,8 @@
 [![npm](https://img.shields.io/npm/dw/homebridge-lifx-plugin?logo=npm&style=flat-square)](https://www.npmjs.com/package/homebridge-lifx-plugin)
 [![npm](https://img.shields.io/npm/dt/homebridge-lifx-plugin?label=total&logo=npm&style=flat-square)](https://www.npmjs.com/package/homebridge-lifx-plugin)
 [![npm](https://img.shields.io/npm/v/homebridge-lifx-plugin?color=brightgreen&label=version&logo=npm&style=flat-square)](https://www.npmjs.com/package/homebridge-lifx-plugin)
+
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/calvarium/homebridge-lifx-plugin?color=brightgreen&logo=GitHub&style=flat-square)
 [![GitHub last commit](https://img.shields.io/github/last-commit/calvarium/homebridge-lifx-plugin?logo=github&style=flat-square)](https://github.com/calvarium/homebridge-lifx-plugin)
 
 LIFX plugin for [Homebridge](https://github.com/homebridge/homebridge).
