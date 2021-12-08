@@ -1,6 +1,8 @@
 # Ignore compiled code
 dist
 
+assets
+
 # ------------- Defaults ------------- #
 
 # Logs
