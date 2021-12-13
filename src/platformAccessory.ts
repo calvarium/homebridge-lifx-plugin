@@ -90,6 +90,8 @@ export class LifxPlatformAccessory {
         this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
           .onSet(this.setKelvin.bind(this));       // SET - bind to the 'setBrightness` method below
 
+        this.HardwareInfo.productFeatures.color = false;
+
         if (this.HardwareInfo.productFeatures.color) {
           this.service.getCharacteristic(this.platform.Characteristic.Hue)
             .onSet(this.setHue.bind(this));       // SET - bind to the 'setBrightness` method below
@@ -237,8 +239,12 @@ export class LifxPlatformAccessory {
 
   async updateLightbuldCharacteristics(){
     this.updateOn();
-    this.updateHue();
-    this.updateSaturation();
+
+    if (this.HardwareInfo.productFeatures.color) {
+      this.updateHue();
+      this.updateSaturation();
+    }
+
     this.updateBrightness();
     this.updateKelvin ();
   }
