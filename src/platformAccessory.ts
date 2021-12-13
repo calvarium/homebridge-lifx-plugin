@@ -83,6 +83,10 @@ export class LifxPlatformAccessory {
         //diabled through many home kit calls || manually updating charactaristic on
         // .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
 
+
+        this.service.addCharacteristic(this.platform.Characteristic.Brightness);
+        this.service.addCharacteristic(this.platform.Characteristic.ColorTemperature);
+
         // register handlers for the Brightness Characteristic
         this.service.getCharacteristic(this.platform.Characteristic.Brightness)
           .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
@@ -93,8 +97,11 @@ export class LifxPlatformAccessory {
         this.HardwareInfo.productFeatures.color = false;
 
         if (this.HardwareInfo.productFeatures.color) {
+          this.service.addCharacteristic(this.platform.Characteristic.Hue);
+          this.service.addCharacteristic(this.platform.Characteristic.Saturation);
           this.service.getCharacteristic(this.platform.Characteristic.Hue)
             .onSet(this.setHue.bind(this));       // SET - bind to the 'setBrightness` method below
+
 
           this.service.getCharacteristic(this.platform.Characteristic.Saturation)
             .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
