@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "Lifx Plugin",
   "name": "homebridge-lifx-plugin",
-  "version": "0.1.10-beta.0",
+  "version": "0.1.10-beta.1",
   "description": "This plugin is a bridge between lifx smart bulbs and your apple homekit",
   "license": "Apache-2.0",
   "repository": {
