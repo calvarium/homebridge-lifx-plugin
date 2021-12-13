@@ -96,6 +96,9 @@ export class LifxPlatformAccessory {
 
           this.service.getCharacteristic(this.platform.Characteristic.Saturation)
             .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
+        } else{
+          this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Hue));
+          this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Saturation));
         }
 
         this.resetWatcher();
@@ -237,8 +240,12 @@ export class LifxPlatformAccessory {
 
   async updateLightbuldCharacteristics(){
     this.updateOn();
-    this.updateHue();
-    this.updateSaturation();
+
+    if (this.HardwareInfo.productFeatures.color) {
+      this.updateHue();
+      this.updateSaturation();
+    }
+
     this.updateBrightness();
     this.updateKelvin ();
   }
