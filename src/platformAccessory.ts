@@ -90,9 +90,13 @@ export class LifxPlatformAccessory {
         this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
           .onSet(this.setKelvin.bind(this));       // SET - bind to the 'setBrightness` method below
 
+        this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Hue));
+        this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Saturation));
+
         this.HardwareInfo.productFeatures.color = false;
 
         if (this.HardwareInfo.productFeatures.color) {
+
           this.service.getCharacteristic(this.platform.Characteristic.Hue)
             .onSet(this.setHue.bind(this));       // SET - bind to the 'setBrightness` method below
 
