@@ -14,9 +14,9 @@
 
 LIFX plugin for [Homebridge](https://github.com/homebridge/homebridge).
 
-Ein Plugin, das Lifx-birnen im Netzwerk automatisch zur Homebridge hinzufügt, anstatt die Lichter mühselig einzeln über homekit zu registrieren
+A plugin that automatically adds Lifx bulbs on the network to the Homebridge instead of tediously registering the lights individually via homekit.
 
-Einzelne Leuchten können manuell hinzugefügt werden.
+Individual lights can be added manually.
 
 
 This plugin will be updated regularly in the future, because I see it as a small heart task and use it personally. 
