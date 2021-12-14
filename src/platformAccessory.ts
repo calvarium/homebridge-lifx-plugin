@@ -87,8 +87,12 @@ export class LifxPlatformAccessory {
         this.service.getCharacteristic(this.platform.Characteristic.Brightness)
           .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
 
-        this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
-          .onSet(this.setKelvin.bind(this));       // SET - bind to the 'setBrightness` method below
+        if (this.hasKelvin()) {
+          this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+            .onSet(this.setKelvin.bind(this));       // SET - bind to the 'setBrightness` method below
+        } else{
+          this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature));
+        }
 
         if (this.HardwareInfo.productFeatures.color) {
           this.service.getCharacteristic(this.platform.Characteristic.Hue)
@@ -106,6 +110,10 @@ export class LifxPlatformAccessory {
       });
     });
 
+  }
+
+  hasKelvin(){
+    return this.HardwareInfo.productName !== 'LIFX Mini White';
   }
 
   /**
@@ -247,7 +255,10 @@ export class LifxPlatformAccessory {
     }
 
     this.updateBrightness();
-    this.updateKelvin ();
+
+    if (this.hasKelvin()) {
+      this.updateKelvin ();
+    }
   }
 
   async setHardwareInformation(callback){

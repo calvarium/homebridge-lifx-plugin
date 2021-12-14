@@ -129,3 +129,20 @@ So go outside, configure your lights, create scenes and automations. Enjoy your 
 - [x] Mark bulb as offline if it could not be reached
 - [ ] Separate dim settings for brightness, color and On/Off
 - [ ] Configure lights individually
+
+## ✅ Officialy supported on
+
+- LIFX A19 Night Vision
+- LIFX A19
+- LIFX Z
+- LIFX Mini White 
+
+All other bulbs could be supported, but without guarantee.
+If you find something that does not fit yet open an issue, I will take care of it
+
+## 🔍 Tested on
+
+- LIFX A19 Night Vision
+- LIFX A19
+- LIFX Z
+
