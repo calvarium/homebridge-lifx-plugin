@@ -18,30 +18,21 @@
         "type": "integer",
         "default": 0,
         "minimum": 0,
-        "description": "Time to fade on/off in milliseconds",
-        "condition": {
-          "functionBody": "return model.autoDiscover === true;"
-        }
+        "description": "Time to fade on/off in milliseconds"
       },
       "brightnessDuration": {
         "title": "Brightness Duration",
         "type": "integer",
         "default": 300,
         "minimum": 0,
-        "description": "Time to fade in milliseconds for changing brightness",
-        "condition": {
-          "functionBody": "return model.autoDiscover === true;"
-        }
+        "description": "Time to fade in milliseconds for changing brightness"
       },
       "colorDuration": {
         "title": "Color Duration",
         "type": "integer",
         "default": 300,
         "minimum": 0,
-        "description": "Time to fade in milliseconds for changing color",
-        "condition": {
-          "functionBody": "return model.autoDiscover === true;"
-        }
+        "description": "Time to fade in milliseconds for changing color"
       },
       "broadcast": {
         "title": "Broadcast Address",
@@ -86,13 +77,10 @@
         "title": "Enable Auto Discover",
         "type": "boolean",
         "default": true,
-        "description": "Discovers bulbs by broadcasting. If disabled, bulbs can be added manually"
+        "description": "Discovers bulbs by broadcasting"
       },
       "bulbs": {
         "type": "array",
-        "condition": {
-          "functionBody": "return model.autoDiscover === false;"
-        },
         "items": {
           "title": "Bulbs",
           "type": "object",
@@ -161,10 +149,7 @@
       "buttonText": "Add Bulb",
       "items": [
         "bulbs[].name",
-        "bulbs[].address",
-        "bulbs[].duration",
-        "bulbs[].brightnessDuration",
-        "bulbs[].colorDuration"
+        "bulbs[].address"
       ]
     },
     {

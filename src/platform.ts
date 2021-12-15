@@ -88,6 +88,10 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
       }
     });
 
+    if (!this.config.autoDiscover) {
+      this.config.broadcast = '0.0.0.0';
+    }
+
     this.log.debug('Initialising lan client');
     this.lifxClient.init({
       broadcast:              this.config.broadcast,

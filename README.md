@@ -61,7 +61,7 @@ So go outside, configure your lights, create scenes and automations. Enjoy your 
 |Title                  |Name    |Type       |Value         |Default|Description
 |-----------------------|--------|-----------|--------------|---|-----------
 |Platform Name          |`name`  |`string`   |any   |"Lifx Plugin"|Display name of the platform, to be seen in the log
-|Enable Auto Discover   |`autoDiscover`  |`boolean`  |true/false    |true|Discovers bulbs by broadcasting. If disabled, bulbs can be added manually
+|Enable Auto Discover   |`autoDiscover`  |`boolean`  |true/false    |true|Discovers bulbs by broadcasting
 |Duration               |`duration`  |`integer`  |0...∞       |0|Time to fade on/off in milliseconds
 |Brightness Duration    |`brightnessDuration`  |`integer`  |0...∞       |300|Time to fade in milliseconds for changing brightness
 |Color Duration         |`colorDuration`  |`integer`  |0...∞       |300|Time to fade in milliseconds for changing color

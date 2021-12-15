@@ -31,7 +31,13 @@ export default class Bulb{
   }
 
   static getColorTemperatur(kelvin){
-    return Math.round((640) / (10500/kelvin));
+    let tmp = Math.round((640) / (10500/kelvin));
+    if (tmp > 500) {
+      tmp = 500;
+    } else if (tmp < 140) {
+      tmp = 140;
+    }
+    return tmp;
   }
 
   static getKelvin(value){
