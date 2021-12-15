@@ -4,24 +4,12 @@ import { LifxHomebridgePlatform } from './platform';
 
 import Bulb from './bulb';
 
-/**
- * Platform Accessory
- * An instance of this class is created for each accessory your platform registers
- * Each accessory may expose multiple services of different service types.
- */
-
 export class LifxPlatformAccessory {
   private service: Service;
   private informationService : Service;
 
-  private online = false;
-
   private watcher;
 
-  /**
-   * These are just used to create a working example
-   * You should implement your own code to track the state of your accessory
-   */
   private States = {
     color: { hue: 120, saturation: 0, brightness: 100, kelvin: 8994 },
     power: 0,
@@ -58,48 +46,33 @@ export class LifxPlatformAccessory {
 
     this.Settings = settings;
 
-    this.online = true;
-
-    // get the LightBulb service if it exists, otherwise create a new LightBulb service
-    // you can create multiple services for each accessory
     this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
     this.informationService = this.Accessory.getService(this.platform.Service.AccessoryInformation)!;
 
-    // set accessory information
     this.setFirmwareVersion();
     this.setHardwareInformation(() => {
       this.updateStates(() => {
-        // set the service name, this is what is displayed as the default name on the Home app
-        // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
         this.service.setCharacteristic(this.platform.Characteristic.Name, this.States.label);
 
-        // each service must implement at-minimum the "required characteristics" for the given service type
-        // see https://developers.homebridge.io/#/service/Lightbulb
-
-        // register handlers for the On/Off Characteristic
         this.service.getCharacteristic(this.platform.Characteristic.On)
-          .onSet(this.setOn.bind(this)) ;        // SET - bind to the `setOn` method below
+          .onSet(this.setOn.bind(this)) ;
 
-        //diabled through many home kit calls || manually updating charactaristic on
-        // .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
-
-        // register handlers for the Brightness Characteristic
         this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-          .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+          .onSet(this.setBrightness.bind(this));
 
         if (this.hasKelvin()) {
           this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
-            .onSet(this.setKelvin.bind(this));       // SET - bind to the 'setBrightness` method below
+            .onSet(this.setKelvin.bind(this));
         } else{
           this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature));
         }
 
         if (this.HardwareInfo.productFeatures.color) {
           this.service.getCharacteristic(this.platform.Characteristic.Hue)
-            .onSet(this.setHue.bind(this));       // SET - bind to the 'setBrightness` method below
+            .onSet(this.setHue.bind(this));
 
           this.service.getCharacteristic(this.platform.Characteristic.Saturation)
-            .onSet(this.setSaturation.bind(this));       // SET - bind to the 'setBrightness` method below
+            .onSet(this.setSaturation.bind(this));
         } else{
           this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Hue));
           this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Saturation));
@@ -116,100 +89,55 @@ export class LifxPlatformAccessory {
     return this.HardwareInfo.productName !== 'LIFX Mini White';
   }
 
-  /**
-   * Handle the "GET" requests from HomeKit
-   * These are sent when HomeKit wants to know the current state of the accessory, for example, checking if a Light bulb is on.
-   *
-   * GET requests should return as fast as possbile. A long delay here will result in
-   * HomeKit being unresponsive and a bad user experience in general.
-   *
-   * If your device takes time to respond you should update the status of your device
-   * asynchronously instead using the `updateCharacteristic` method instead.
-
-   * @example
-   * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
-   */
-  async getOn(): Promise<CharacteristicValue> {
-    const isOn = this.States.power;
-    this.platform.log.debug('Get Characteristic On ->', isOn);
-    return isOn;
-  }
-
   async setOn(value: CharacteristicValue) {
     this.resetWatcher();
-    if (!this.online) {
-      this.updateLightbuldCharacteristics();
-      //place Timeout right here
-    }else {
-      this.States.power = value as number;
+    this.States.power = value as number;
 
-      if (this.States.power > 0) {
-        this.light.on(this.Settings.Duration);
-      } else{
-        this.light.off(this.Settings.Duration);
-      }
-
-      this.platform.log.debug('Set Characteristic On ->', value);
+    if (this.States.power > 0) {
+      this.light.on(this.Settings.Duration);
+    } else{
+      this.light.off(this.Settings.Duration);
     }
+
+    this.platform.log.debug('Set Characteristic On ->', value);
   }
 
   async setBrightness(value: CharacteristicValue) {
     this.resetWatcher();
-    if (!this.online) {
-      this.updateLightbuldCharacteristics();
-      //place Timeout right here
-    }else {
-      this.States.color.brightness = value as number;
-      Bulb.update(this.light, this.States, this.Settings.BrightnessDuration);
-      // this.updateLightbuldCharacteristics();
-      this.platform.log.debug('Set Characteristic Brightness -> ', value);
-    }
+    this.States.color.brightness = value as number;
+    Bulb.update(this.light, this.States, this.Settings.BrightnessDuration);
+
+    this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
 
   async setHue(value: CharacteristicValue){
     this.resetWatcher();
-    if (!this.online) {
-      this.updateLightbuldCharacteristics();
-      //place Timeout right here
-    }else {
-      this.States.color.hue = value as number;
-      Bulb.update(this.light, this.States, this.Settings.ColorDuration);
-      // this.updateLightbuldCharacteristics();
-      this.platform.log.debug('Set Characteristic Hue -> ', value);
-    }
+    this.States.color.hue = value as number;
+    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+
+    this.platform.log.debug('Set Characteristic Hue -> ', value);
   }
 
   async setSaturation(value: CharacteristicValue){
     this.resetWatcher();
-    if (!this.online) {
-      this.updateLightbuldCharacteristics();
-      //place Timeout right here
-    }else {
-      this.States.color.saturation = value as number;
-      Bulb.update(this.light, this.States, this.Settings.ColorDuration);
-      // this.updateLightbuldCharacteristics();
-      this.platform.log.debug('Set Characteristic Saturation -> ', value);
-    }
+    this.States.color.saturation = value as number;
+    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+
+    this.platform.log.debug('Set Characteristic Saturation -> ', value);
   }
 
   async setKelvin(value: CharacteristicValue){
     this.resetWatcher();
-    if (!this.online) {
-      this.updateLightbuldCharacteristics();
-      //place Timeout right here
-    }else {
-      this.States.color.hue = 0;
-      this.States.color.saturation = 0;
-      this.States.color.kelvin = Bulb.getKelvin(value as number);
-      // this.updateLightbuldCharacteristics();
-      Bulb.update(this.light, this.States, this.Settings.ColorDuration);
-      this.platform.log.debug('Set Characteristic Kelvin -> ', value);
-    }
+    this.States.color.hue = 0;
+    this.States.color.saturation = 0;
+    this.States.color.kelvin = Bulb.getKelvin(value as number);
+
+    Bulb.update(this.light, this.States, this.Settings.ColorDuration);
+    this.platform.log.debug('Set Characteristic Kelvin -> ', value);
   }
 
-  handleError(err){
-    this.platform.log.debug('Bulb throughs error', err);
-    this.SetOffline();
+  handleError(err, msg){
+    this.platform.log.debug(msg+'\nBulb ' + this.States.label + ' throughs error', err);
     // if you need to return an error to show the device as "Not Responding" in the Home app:
     // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
   }
@@ -232,13 +160,15 @@ export class LifxPlatformAccessory {
   async updateStates(callback){
     Bulb.getStates(this.light, (state) => {
       if (state !== null) {
-        this.SetOnline();
         this.setStates(state);
         callback();
       }else{
-        this.SetOffline();
+        this.setPower(0);
       }
-    }, (err) => this.handleError(err));
+    }, (err) => {
+      this.setPower(0);
+      this.handleError(err, 'updateStates');
+    });
   }
 
   async setStates(state){
@@ -266,7 +196,7 @@ export class LifxPlatformAccessory {
       this.HardwareInfo = info;
       this.setAccessoryInformationCharacteristics(this.HardwareInfo);
       callback();
-    }, (err) => this.handleError(err));
+    }, (err) => this.handleError(err, 'setHardwareInformation'));
   }
 
   async setAccessoryInformationCharacteristics(info){
@@ -279,7 +209,7 @@ export class LifxPlatformAccessory {
     Bulb.getFirmwareVersion(this.light, (version) => {
       this.FirmwareVersion = version;
       this.setFirmwareRevision(this.FirmwareVersion.majorVersion + '.' + this.FirmwareVersion.minorVersion);
-    }, (err) => this.handleError(err));
+    }, (err) => this.handleError(err, 'setFirmwareVersion'));
   }
 
   async setFirmwareRevision(version){
@@ -321,16 +251,6 @@ export class LifxPlatformAccessory {
   setPower(value){
     this.States.power = value;
     this.updateOn();
-  }
-
-  public async SetOnline(){
-    this.online = true;
-    this.setPower(1);
-  }
-
-  public async SetOffline(){
-    this.online = false;
-    this.setPower(0);
   }
 
   public GetName(){
