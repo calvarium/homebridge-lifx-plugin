@@ -59,14 +59,14 @@
         "type": "integer",
         "default": 150,
         "minimum": 50,
-        "description": "Delay between packages if light did not receive a packet (for setting methods with callback)"
+        "description": "Delay between packages if light did not receive a packet"
       },
       "resendMaxTimes": {
         "title": "Resend Packet Max Times",
         "type": "integer",
         "default": 3,
         "minimum": 0,
-        "description": "Resend packages x times if light did not receive a packet (for setting methods with callback)"
+        "description": "Resend packages x times if light did not receive a packet"
       },
       "debug": {
         "title": "Enable Debug Mode",

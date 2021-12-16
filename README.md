@@ -46,7 +46,7 @@ or use the awesome [Homebridge Config Ui X plugin](https://www.npmjs.com/package
 
 All settings can be configured in the [Homebridge Plugin Settings GUI](https://github.com/oznu/homebridge-config-ui-x/wiki/Developers:-Plugin-Settings-GUI)
 
-<img width="798" alt="Settings" src="https://user-images.githubusercontent.com/94163719/145215775-1d31068f-3971-4f31-8e73-c51de18d0464.png">
+<img width="800" alt="Bildschirmfoto 2021-12-16 um 09 21 54" src="https://user-images.githubusercontent.com/94163719/146334682-bcaa0f20-1f83-4e7f-9bd9-337204249196.png">
 
 Options can be found under [Settings](#⚙️-settings)
 
@@ -66,6 +66,16 @@ So go outside, configure your lights, create scenes and automations. Enjoy your 
 |Brightness Duration    |`brightnessDuration`  |`integer`  |0...∞       |300|Time to fade in milliseconds for changing brightness
 |Color Duration         |`colorDuration`  |`integer`  |0...∞       |300|Time to fade in milliseconds for changing color
 
+### Bulbs
+
+Adding bulbs separately is useful for networks where broadcasting is not possible or if you do not want the plugin to discover all bulbs automatically.
+If autoDiscover is enabled the separately added bulbs are not added a second time.
+
+|Title                  |Name    |Type       |Value         |Default|Description
+|-----------------------|--------|-----------|--------------|---|-----------
+|Name          |`name`  |`string`   |any   ||Name for recognizing the bulb
+|Address   |`address`  |`string`  |ip    ||IP address of the bulb to be added separately
+
 ### Advenced Settings
 
 |Title                  |Name    |Type       |Value         |Default|Description
@@ -73,8 +83,8 @@ So go outside, configure your lights, create scenes and automations. Enjoy your 
 |Broadcast Address          |`broadcast`  |`string`   |ip|255.255.255.255   |Broadcast address of your network to detect bulbs automatically
 |Offline Tolerance   |`lightOfflineTolerance`  |`integer`  |1...∞    |3|A light is offline if not seen for the given amount of discoveries
 |Handler Timeout               |`messageHandlerTimeout`  |`integer`  |100...∞       |45000|In ms, if not answer in time an error is provided to get methods
-|Resend Packet Delay    |`resendPacketDelay`  |`integer`  |50...∞       |150|Delay between packages if light did not receive a packet (for setting methods with callback)
-|Resend Packet Max Times         |`resendMaxTimes`  |`integer`  |0...∞       |3|Resend packages x times if light did not receive a packet (for setting methods with callback)
+|Resend Packet Delay    |`resendPacketDelay`  |`integer`  |50...∞       |150|Delay between packages if light did not receive a packet
+|Resend Packet Max Times         |`resendMaxTimes`  |`integer`  |0...∞       |3|Resend packages x times if light did not receive a packet
 
 ### Example Configuration
 
@@ -127,6 +137,7 @@ So go outside, configure your lights, create scenes and automations. Enjoy your 
 - [x] Add lights individually
 - [x] Listen for new states of the light
 - [x] Mark bulb as offline if it could not be reached
+- [x] Enable adding bulbs manually when autoDiscover is active
 - [ ] Separate dim settings for brightness, color and On/Off
 - [ ] Configure lights individually
 
@@ -136,6 +147,8 @@ So go outside, configure your lights, create scenes and automations. Enjoy your 
 - LIFX A19
 - LIFX Z
 - LIFX Mini White 
+- LIFX Original     
+- LIFX Colour 1000
 
 All other bulbs could be supported, but without guarantee.
 If you find something that does not fit yet open an issue, I will take care of it
@@ -145,4 +158,6 @@ If you find something that does not fit yet open an issue, I will take care of i
 - LIFX A19 Night Vision
 - LIFX A19
 - LIFX Z
-
+- LIFX Mini White    (by [7RDR7](https://github.com/7RDR7))
+- LIFX Original      (by [andyvirus](https://github.com/andyvirus))
+- LIFX Colour 1000   (by [andyvirus](https://github.com/andyvirus))
