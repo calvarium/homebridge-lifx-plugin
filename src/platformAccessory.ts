@@ -200,9 +200,9 @@ export class LifxPlatformAccessory {
   }
 
   async setAccessoryInformationCharacteristics(info){
-    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.Manufacturer, info.vendorName);
-    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.Model, info.productName);
-    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.SerialNumber, this.light.id);
+    this.informationService.setCharacteristic(this.platform.Characteristic.Manufacturer, info.vendorName);
+    this.informationService.setCharacteristic(this.platform.Characteristic.Model, info.productName);
+    this.informationService.setCharacteristic(this.platform.Characteristic.SerialNumber, this.light.id);
   }
 
   async setFirmwareVersion(){
@@ -213,39 +213,27 @@ export class LifxPlatformAccessory {
   }
 
   async setFirmwareRevision(version){
-    this.setAccessoryInformationCharacteristic(this.platform.Characteristic.FirmwareRevision, version);
-  }
-
-  async setAccessoryInformationCharacteristic(characteristic, value : CharacteristicValue){
-    this.informationService.setCharacteristic(characteristic, value);
-  }
-
-  async setLightbulbCharacteristic(characteristic, value : CharacteristicValue){
-    this.service.setCharacteristic(characteristic, value);
-  }
-
-  async updateLightbulbCharacteristic(characteristic, value : CharacteristicValue){
-    this.service.updateCharacteristic(characteristic, value);
+    this.informationService.setCharacteristic(this.platform.Characteristic.FirmwareRevision, version);
   }
 
   updateOn(){
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.On, this.States.power);
+    this.service.updateCharacteristic(this.platform.Characteristic.On, this.States.power);
   }
 
   updateHue(){
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.Hue, this.States.color.hue);
+    this.service.updateCharacteristic(this.platform.Characteristic.Hue, this.States.color.hue);
   }
 
   updateSaturation(){
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.Saturation, this.States.color.saturation);
+    this.service.updateCharacteristic(this.platform.Characteristic.Saturation, this.States.color.saturation);
   }
 
   updateBrightness(){
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.Brightness, this.States.color.brightness);
+    this.service.updateCharacteristic(this.platform.Characteristic.Brightness, this.States.color.brightness);
   }
 
   updateKelvin (){
-    this.updateLightbulbCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(this.States.color.kelvin));
+    this.service.updateCharacteristic(this.platform.Characteristic.ColorTemperature, Bulb.getColorTemperatur(this.States.color.kelvin));
   }
 
   setPower(value){
