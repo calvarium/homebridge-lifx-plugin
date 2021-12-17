@@ -70,9 +70,7 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
 
   }
 
-  findAccessory(light){
-    return this.accessories.find(accessory => accessory.UUID === this.getUuid(light));
-  }
+  //should bulbs be defined here?
 
   getUuid(light){
     return this.api.hap.uuid.generate(light.id);
