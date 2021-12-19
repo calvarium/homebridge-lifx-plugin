@@ -1,4 +1,7 @@
+import LIFX from './products.json';
+import ProductInfo from './IProductInfo';
 export default class Bulb{
+  private ProductInfo? : ProductInfo;
 
   private States = {
     color: { hue: 120, saturation: 0, brightness: 100, kelvin: 8994 },
@@ -25,6 +28,7 @@ export default class Bulb{
   public async Init(callback, error){
     this.setFirmwareVersion(err => error(err));
     this.setHardwareInformation(() => {
+      this.ProductInfo = Bulb.getProductInfo(this.HardwareInfo.productName);
       this.updateStates(() => {
         callback();
       });
@@ -52,11 +56,16 @@ export default class Bulb{
   }
 
   public hasColors(){
+    if (this.ProductInfo) {
+      return this.ProductInfo.features.color;
+    }
     return this.HardwareInfo.productFeatures.color;
   }
 
   public hasKelvin(){
-    //checking if range in light object is available
+    if (this.ProductInfo) {
+      return this.ProductInfo.features.temperature_range.reduce((a, b) => b - a) > 0;
+    }
     return this.HardwareInfo.productName !== 'LIFX Mini White';
   }
 
@@ -72,6 +81,10 @@ export default class Bulb{
       this.setPower(0);
       callback();
     });
+  }
+
+  private static getProductInfo(productName) : ProductInfo{
+    return LIFX.products.find((x) => x.name === productName) as ProductInfo;
   }
 
   private setPower(value){
@@ -150,7 +163,7 @@ export default class Bulb{
   async setKelvin(value: number){
     this.States.color.hue = 0;
     this.States.color.saturation = 0;
-    this.States.color.kelvin = Bulb.getKelvin(value);
+    this.States.color.kelvin = this.getKelvin(value);
     this.update(this.States, this.Settings.ColorDuration);
   }
 
@@ -171,7 +184,8 @@ export default class Bulb{
   }
 
   getColorTemperatur(){
-    let tmp = Math.round((640) / (10500/ this.States.color.kelvin));
+    const max = this.getKelvinRange();
+    let tmp = Math.round((640) / (max/ this.States.color.kelvin));
     if (tmp > 500) {
       tmp = 500;
     } else if (tmp < 140) {
@@ -180,20 +194,17 @@ export default class Bulb{
     return tmp;
   }
 
-  static getColorTemperatur(kelvin){
-    let tmp = Math.round((640) / (10500/kelvin));
-    if (tmp > 500) {
-      tmp = 500;
-    } else if (tmp < 140) {
-      tmp = 140;
+  public getKelvin(value){
+    const max = this.getKelvinRange();
+    return max - Math.round((max) / (640/value));
+  }
+
+  private getKelvinRange(){
+    if (this.ProductInfo) {
+      return this.ProductInfo.features.temperature_range.reduce((a, b) => a + b);
     }
-    return tmp;
+    return 10500;
   }
-
-  static getKelvin(value){
-    return 10500 - Math.round((10500) / (640/value));
-  }
-
 
 
 }

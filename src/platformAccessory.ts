@@ -97,7 +97,7 @@ export class LifxPlatformAccessory {
   }
 
   handleError(err){
-    this.platform.log.debug('Bulb ' + this.bulb.getName() + ' throughs error', err);
+    this.platform.log.warn('Bulb ' + this.bulb.getName() + ' throughs error', err);
     // if you need to return an error to show the device as "Not Responding" in the Home app:
     // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
   }
@@ -121,7 +121,7 @@ export class LifxPlatformAccessory {
   async updateLightbuldCharacteristics(){
     this.updateOn();
 
-    if (this.bulb.hasColors) {
+    if (this.bulb.hasColors()) {
       this.updateHue();
       this.updateSaturation();
     }
