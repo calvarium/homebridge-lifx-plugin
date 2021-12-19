@@ -6,6 +6,8 @@ import Bulb from './bulb';
 
 export class LifxPlatformAccessory {
   private service: Service;
+  private informationService : Service;
+
   private watcher;
 
   private bulb;
@@ -20,6 +22,7 @@ export class LifxPlatformAccessory {
     this.bulb = new Bulb(light, settings);
 
     this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
+    this.informationService = this.Accessory.getService(this.platform.Service.AccessoryInformation)!;
 
     this.bulb.Init(()=>{
 
@@ -32,11 +35,10 @@ export class LifxPlatformAccessory {
   }
 
   setHardwareCharacteristics(){
-    this.Accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.bulb.getVersion())
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, this.bulb.getVendorName())
-      .setCharacteristic(this.platform.Characteristic.Model, this.bulb.getProductName())
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.bulb.getSerialNumber());
+    this.informationService.setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.bulb.getVersion());
+    this.informationService.setCharacteristic(this.platform.Characteristic.Manufacturer, this.bulb.getVendorName());
+    this.informationService.setCharacteristic(this.platform.Characteristic.Model, this.bulb.getProductName());
+    this.informationService.setCharacteristic(this.platform.Characteristic.SerialNumber, this.bulb.getSerialNumber());
     this.service.setCharacteristic(this.platform.Characteristic.Name, this.bulb.getName());
   }
 

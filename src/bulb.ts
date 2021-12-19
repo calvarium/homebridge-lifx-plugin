@@ -1,4 +1,5 @@
-export default class Bulb{
+import IBulb from './IBulb';
+export default class Bulb implements IBulb{
 
   private States = {
     color: { hue: 120, saturation: 0, brightness: 100, kelvin: 8994 },
@@ -22,10 +23,10 @@ export default class Bulb{
     private readonly Settings){
   }
 
-  public async Init(callback, error){
+  public async Initialise(callback, error){
     this.setFirmwareVersion(err => error(err));
     this.setHardwareInformation(() => {
-      this.updateStates(() => {
+      this.pollStates(() => {
         callback();
       });
     }, err => error(err));
@@ -60,7 +61,7 @@ export default class Bulb{
     return this.HardwareInfo.productName !== 'LIFX Mini White';
   }
 
-  async updateStates(callback){
+  async pollStates(callback){
     this.getStates((state) => {
       if (state !== null) {
         this.States = state;
@@ -155,7 +156,7 @@ export default class Bulb{
   }
 
   getOn() {
-    return this.States.power;
+    return this.States.power > 0;
   }
 
   getBrightness() {
