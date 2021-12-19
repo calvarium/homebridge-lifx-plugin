@@ -118,6 +118,31 @@
             }
           }
         }
+      },
+      "excludes": {
+        "type": "array",
+        "items": {
+          "title": "Excludes",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "placeholder": "Enter bulb name..."
+            },
+            "address": {
+              "type": "string",
+              "format": "hostname",
+              "placeholder": "xxx.xxx.xxx.xxx"
+            },
+            "id": {
+              "title": "ID",
+              "type": "string",
+              "placeholder": "",
+              "description": "Serial number of the bulb"
+            }
+          }
+        }
       }
     }
   },
@@ -150,6 +175,17 @@
       "items": [
         "bulbs[].name",
         "bulbs[].address"
+      ]
+    },
+    {
+      "key": "excludes",
+      "type": "array",
+      "orderable": false,
+      "buttonText": "Add Exclusion",
+      "items": [
+        "excludes[].name",
+        "excludes[].address",
+        "excludes[].id"
       ]
     },
     {

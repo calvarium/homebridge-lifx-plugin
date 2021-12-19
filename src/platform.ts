@@ -45,12 +45,21 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
 
     this.log.debug('Register eventhandlers');
     this.lifxClient.on('light-new', (light) => {
+      if (this.config.excludes) {
+        if (this.config.excludes.some(x => x.id === light.id || x.address === light.address)) {
+          this.removeAccessory(light);
+          this.log.info('Device removed');
+          return;
+        }
+      }
+
       light.getLabel((err, value) => {
         this.log.debug('Light detected:', value);
         if (value) {
           this.handleLight(light, value);
         }
       });
+
     });
 
     if (!this.config.autoDiscover) {
@@ -92,6 +101,14 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
       BrightnessDuration: this.config.brightnessDuration,
       ColorDuration: this.config.colorDuration,
     }));
+  }
+
+  removeAccessory(light){
+    const accessory = this.findCachedAccessory(light);
+
+    if (accessory) {
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    }
   }
 
   handleLight(light, name){

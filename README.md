@@ -75,6 +75,15 @@ If autoDiscover is enabled the separately added bulbs are not added a second tim
 |-----------------------|--------|-----------|--------------|---|-----------
 |Name          |`name`  |`string`   |any   ||Name for recognizing the bulb
 |Address   |`address`  |`string`  |ip    ||IP address of the bulb to be added separately
+### Excludes
+
+You can now create exceptions for your bulbs that should not be registered with broadcasting
+
+|Title                  |Name    |Type       |Value         |Default|Description
+|-----------------------|--------|-----------|--------------|---|-----------
+|Name          |`name`  |`string`   |any   ||Name for recognizing the bulb
+|Address   |`address`  |`string`  |ip    ||IP address of the bulb to be excluded
+|ID   |`id`  |`string`  |id    ||Serial number of the bulb to be excluded
 
 ### Advenced Settings
 
@@ -138,6 +147,7 @@ If autoDiscover is enabled the separately added bulbs are not added a second tim
 - [x] Listen for new states of the light
 - [x] Mark bulb as offline if it could not be reached
 - [x] Enable adding bulbs manually when autoDiscover is active
+- [x] Added exclusions for bulbs to not be registered (thanks to [L0T8](https://github.com/L0T8))
 - [ ] Separate dim settings for brightness, color and On/Off
 - [ ] Configure lights individually
 
