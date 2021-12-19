@@ -54,7 +54,7 @@ export class LifxPlatformAccessory {
       this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature));
     }
 
-    if (this.bulb.hasColors) {
+    if (this.bulb.hasColors()) {
       this.service.getCharacteristic(this.platform.Characteristic.Hue)
         .onSet(this.setHue.bind(this));
 
