@@ -5,6 +5,8 @@
 
 # homebridge-lifx-plugin
 
+[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?style=flat-square)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+
 [![npm](https://img.shields.io/npm/dw/homebridge-lifx-plugin?logo=npm&style=flat-square)](https://www.npmjs.com/package/homebridge-lifx-plugin)
 [![npm](https://img.shields.io/npm/dt/homebridge-lifx-plugin?label=total&logo=npm&style=flat-square)](https://www.npmjs.com/package/homebridge-lifx-plugin)
 [![npm](https://img.shields.io/npm/v/homebridge-lifx-plugin?color=brightgreen&label=version&logo=npm&style=flat-square)](https://www.npmjs.com/package/homebridge-lifx-plugin)
@@ -150,15 +152,19 @@ You can now create exceptions for your bulbs that should not be registered with 
 - [x] Added exclusions for bulbs to not be registered (thanks to [L0T8](https://github.com/L0T8))
 - [ ] Separate dim settings for brightness, color and On/Off
 - [ ] Configure lights individually
+- [ ] Accessories will show as "no response" until plugin has successfully initialised
 
 ## ✅ Officialy supported on
 
 - LIFX A19 Night Vision
 - LIFX A19
 - LIFX Z
-- LIFX Mini White 
-- LIFX Original     
+- LIFX Mini White
+- LIFX BR30 Night Vision
+- LIFX Original
 - LIFX Colour 1000
+- LIFX GU10
+- LIFX Mini Day & Dusk
 
 All other bulbs could be supported, but without guarantee.
 If you find something that does not fit yet open an issue, I will take care of it
@@ -168,6 +174,9 @@ If you find something that does not fit yet open an issue, I will take care of i
 - LIFX A19 Night Vision
 - LIFX A19
 - LIFX Z
-- LIFX Mini White    (by [7RDR7](https://github.com/7RDR7))
-- LIFX Original      (by [andyvirus](https://github.com/andyvirus))
-- LIFX Colour 1000   (by [andyvirus](https://github.com/andyvirus))
+- LIFX Mini White           (by [7RDR7](https://github.com/7RDR7))
+- LIFX BR30 Night Vision    (by [7RDR7](https://github.com/7RDR7))
+- LIFX Original             (by [andyvirus](https://github.com/andyvirus))
+- LIFX Colour 1000          (by [andyvirus](https://github.com/andyvirus))
+- LIFX GU10                 (by [L0T8](https://github.com/L0T8))
+- LIFX Mini Day & Dusk      (by [L0T8](https://github.com/L0T8))

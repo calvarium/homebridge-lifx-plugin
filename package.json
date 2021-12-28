@@ -4,6 +4,10 @@
   "name": "homebridge-lifx-plugin",
   "version": "0.1.17",
   "description": "This plugin is a bridge between lifx smart bulbs and your apple homekit",
+  "funding": {
+    "type" : "paypal",
+    "url" : "https://paypal.me/calvarium"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
