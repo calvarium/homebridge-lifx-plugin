@@ -34,6 +34,13 @@
         "minimum": 0,
         "description": "Time to fade in milliseconds for changing color"
       },
+      "default": {
+        "title": "Default Route",
+        "type": "string",
+        "format": "hostname",
+        "default": "0.0.0.0",
+        "description": "Default route address to bind the udp connection to"
+      },
       "broadcast": {
         "title": "Broadcast Address",
         "type": "string",
@@ -195,6 +202,7 @@
       "expandable": true,
       "expanded": false,
       "items": [
+        "default",
         "broadcast",
         "lightOfflineTolerance",
         "messageHandlerTimeout",

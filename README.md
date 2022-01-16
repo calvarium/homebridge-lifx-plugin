@@ -91,6 +91,7 @@ You can now create exceptions for your bulbs that should not be registered with 
 
 |Title                  |Name    |Type       |Value         |Default|Description
 |-----------------------|--------|-----------|--------------|---|-----------
+|IPv4 Address          |`address`  |`string`   |ip|0.0.0.0   |IPv4 address to bind the udp connection to 
 |Broadcast Address          |`broadcast`  |`string`   |ip|255.255.255.255   |Broadcast address of your network to detect bulbs automatically
 |Offline Tolerance   |`lightOfflineTolerance`  |`integer`  |1...∞    |3|A light is offline if not seen for the given amount of discoveries
 |Handler Timeout               |`messageHandlerTimeout`  |`integer`  |100...∞       |45000|In ms, if not answer in time an error is provided to get methods

@@ -67,15 +67,20 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
     }
 
     this.log.debug('Initialising lan client');
-    this.lifxClient.init({
-      broadcast:              this.config.broadcast,
-      lightOfflineTolerance:  this.config.lightOfflineTolerance,
-      messageHandlerTimeout:  this.config.messageHandlerTimeout,
-      resendPacketDelay:      this.config.resendPacketDelay,
-      resendMaxTimes:         this.config.resendMaxTimes,
-      debug:                  this.config.debug,
-      lights:                 this.bulbs || [],
-    });
+    try {
+      this.lifxClient.init({
+        address:                this.config.default,
+        broadcast:              this.config.broadcast,
+        lightOfflineTolerance:  this.config.lightOfflineTolerance,
+        messageHandlerTimeout:  this.config.messageHandlerTimeout,
+        resendPacketDelay:      this.config.resendPacketDelay,
+        resendMaxTimes:         this.config.resendMaxTimes,
+        debug:                  this.config.debug,
+        lights:                 this.bulbs || [],
+      });
+    } catch (error) {
+      this.log.error('Error initializing listener', error as string);
+    }
 
   }
 
