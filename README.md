@@ -48,7 +48,7 @@ or use the awesome [Homebridge Config Ui X plugin](https://www.npmjs.com/package
 
 All settings can be configured in the [Homebridge Plugin Settings GUI](https://github.com/oznu/homebridge-config-ui-x/wiki/Developers:-Plugin-Settings-GUI)
 
-<img width="800" alt="Bildschirmfoto 2021-12-16 um 09 21 54" src="https://user-images.githubusercontent.com/94163719/146334682-bcaa0f20-1f83-4e7f-9bd9-337204249196.png">
+<img width="799" alt="Bildschirmfoto 2022-01-18 um 09 43 46" src="https://user-images.githubusercontent.com/94163719/149901919-8fcd4673-c8a9-4ba3-8b60-7b511d06a7fe.png">
 
 Options can be found under [Settings](#⚙️-settings)
 
@@ -91,7 +91,7 @@ You can now create exceptions for your bulbs that should not be registered with 
 
 |Title                  |Name    |Type       |Value         |Default|Description
 |-----------------------|--------|-----------|--------------|---|-----------
-|IPv4 Address          |`address`  |`string`   |ip|0.0.0.0   |IPv4 address to bind the udp connection to 
+|Default Route          |`default`  |`string`   |ip|0.0.0.0   |Default route address to bind the udp connection to 
 |Broadcast Address          |`broadcast`  |`string`   |ip|255.255.255.255   |Broadcast address of your network to detect bulbs automatically
 |Offline Tolerance   |`lightOfflineTolerance`  |`integer`  |1...∞    |3|A light is offline if not seen for the given amount of discoveries
 |Handler Timeout               |`messageHandlerTimeout`  |`integer`  |100...∞       |45000|In ms, if not answer in time an error is provided to get methods
@@ -151,6 +151,7 @@ You can now create exceptions for your bulbs that should not be registered with 
 - [x] Mark bulb as offline if it could not be reached
 - [x] Enable adding bulbs manually when autoDiscover is active
 - [x] Added exclusions for bulbs to not be registered (thanks to [L0T8](https://github.com/L0T8))
+- [x] Added default route for different NICs (thanks to [andyvirus](https://github.com/andyvirus))
 - [ ] Separate dim settings for brightness, color and On/Off
 - [ ] Configure lights individually
 - [ ] Accessories will show as "no response" until plugin has successfully initialised
