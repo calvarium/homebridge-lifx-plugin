@@ -97,6 +97,7 @@ You can now create exceptions for your bulbs that should not be registered with 
 |Handler Timeout               |`messageHandlerTimeout`  |`integer`  |100...∞       |45000|In ms, if not answer in time an error is provided to get methods
 |Resend Packet Delay    |`resendPacketDelay`  |`integer`  |50...∞       |150|Delay between packages if light did not receive a packet
 |Resend Packet Max Times         |`resendMaxTimes`  |`integer`  |0...∞       |3|Resend packages x times if light did not receive a packet
+|Update         |`updates`  |`boolean`  |true/false       |true|Disable if you don't want the plugin to check for updates
 
 ### Example Configuration
 
