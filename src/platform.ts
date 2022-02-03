@@ -37,6 +37,9 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
   configureAccessory(accessory: PlatformAccessory) {
     this.log.debug('Loading accessory from cache:', accessory.displayName);
 
+    const service = accessory.getService(this.Service.AccessoryInformation);
+    service!.removeCharacteristic(service!.getCharacteristic(this.Characteristic.FirmwareRevision));
+
     this.cachedAccessories.push(accessory);
 
   }

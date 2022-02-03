@@ -24,6 +24,7 @@ export class LifxPlatformAccessory {
     this.bulb.Init(()=>{
 
       this.setHardwareCharacteristics();
+      this.setSoftwareCharacteristics();
       this.bindFunctions();
       this.resetWatcher();
 
@@ -33,10 +34,19 @@ export class LifxPlatformAccessory {
 
   setHardwareCharacteristics(){
     this.Accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.bulb.getVersion())
       .setCharacteristic(this.platform.Characteristic.Manufacturer, this.bulb.getVendorName())
       .setCharacteristic(this.platform.Characteristic.Model, this.bulb.getProductName())
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.bulb.getSerialNumber());
+  }
+
+  setSoftwareCharacteristics(){
+    const version = this.bulb.getVersion();
+
+    if (version !== '0.0' && this.platform.config.updates) {
+      const service = this.Accessory.getService(this.platform.Service.AccessoryInformation)!;
+      service.addCharacteristic(this.platform.Characteristic.FirmwareRevision);
+      service.setCharacteristic(this.platform.Characteristic.FirmwareRevision, version);
+    }
     this.service.setCharacteristic(this.platform.Characteristic.Name, this.bulb.getName());
   }
 

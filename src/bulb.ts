@@ -17,7 +17,7 @@ export default class Bulb{
 
   private FirmwareVersion = {
     majorVersion : 0,
-    minorVersion : 1,
+    minorVersion : 0,
   };
 
   constructor(

@@ -75,6 +75,12 @@
         "minimum": 0,
         "description": "Resend packages x times if light did not receive a packet"
       },
+      "updates": {
+        "title": "Updates",
+        "description": "Check if you don't care about updates",
+        "type": "boolean",
+        "default": true
+      },
       "debug": {
         "title": "Enable Debug Mode",
         "type": "boolean",
@@ -208,6 +214,7 @@
         "messageHandlerTimeout",
         "resendPacketDelay",
         "resendMaxTimes",
+        "updates",
         "debug"
       ]
     }
