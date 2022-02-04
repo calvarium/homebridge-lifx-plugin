@@ -43,14 +43,31 @@ npm i homebridge-lifx-plugin
 ```
 
 or use the awesome [Homebridge Config Ui X plugin](https://www.npmjs.com/package/homebridge-config-ui-x)
-
+   
+<img width="250" alt="Bildschirmfoto 2022-01-18 um 09 43 46" src="https://user-images.githubusercontent.com/94163719/149901919-8fcd4673-c8a9-4ba3-8b60-7b511d06a7fe.png" align="right">
+  
 ### 2. **Setup**
-
+   
+To make sure your bulbs are automatically detected, enter your correct broadcast address in advanced settings.
+If you don't know what broadcast address means, [have a look at this comment](https://github.com/calvarium/homebridge-lifx-plugin/issues/9#issuecomment-1028757142).
+   
+You can retrieve your broadcast address with the following command:
+   
+***Windows***
+```console
+ipconfig
+```
+  
+***Mac/Linux***
+```console
+ifconfig
+```
+   
 All settings can be configured in the [Homebridge Plugin Settings GUI](https://github.com/oznu/homebridge-config-ui-x/wiki/Developers:-Plugin-Settings-GUI)
 
-<img width="799" alt="Bildschirmfoto 2022-01-18 um 09 43 46" src="https://user-images.githubusercontent.com/94163719/149901919-8fcd4673-c8a9-4ba3-8b60-7b511d06a7fe.png">
+All options can be found under [Settings](#⚙️-settings)   
+<br clear="right"/>
 
-Options can be found under [Settings](#⚙️-settings)
 
 ### 3. **Enjoy** 😎💡
 
