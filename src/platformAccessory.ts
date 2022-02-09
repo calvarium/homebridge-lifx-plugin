@@ -7,6 +7,7 @@ import Bulb from './bulb';
 export class LifxPlatformAccessory {
   private service: Service;
   private watcher;
+  private adaptiveLightingController;
 
   private bulb;
 
@@ -20,6 +21,7 @@ export class LifxPlatformAccessory {
     this.bulb = new Bulb(light, settings);
 
     this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
+
 
     this.bulb.Init(()=>{
 
@@ -60,6 +62,12 @@ export class LifxPlatformAccessory {
     if (this.bulb.hasKelvin()) {
       this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
         .onSet(this.setKelvin.bind(this));
+
+      if (this.adaptiveLightingSupport()) {
+        this.adaptiveLightingController = new this.platform.AdaptiveLightingController(this.service);
+        this.Accessory.configureController(this.adaptiveLightingController);
+      }
+
     } else{
       this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature));
     }
@@ -161,6 +169,11 @@ export class LifxPlatformAccessory {
 
   updateKelvin (){
     this.service.updateCharacteristic(this.platform.Characteristic.ColorTemperature, this.bulb.getColorTemperatur());
+  }
+
+  // Checks homebridge version to see if Adaptive Lighting is supported
+  adaptiveLightingSupport() {
+    return (this.platform.api.versionGreaterOrEqual && this.platform.api.versionGreaterOrEqual('v1.3.0-beta.23'));
   }
 
 }

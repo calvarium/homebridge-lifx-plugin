@@ -1,4 +1,5 @@
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic, AdaptiveLightingController,
+} from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { LifxPlatformAccessory } from './platformAccessory';
@@ -8,6 +9,7 @@ import Lifx from 'lifx-lan-client';
 export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  public readonly AdaptiveLightingController: typeof AdaptiveLightingController = this.api.hap.AdaptiveLightingController;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private lifxClient: any = new Lifx.Client();

@@ -16,10 +16,9 @@
 
 LIFX plugin for [Homebridge](https://github.com/homebridge/homebridge).
 
+_**This is the first lifx plugin that officially supports adaptive lighting ☀️ | 🌑**_
+   
 A plugin that automatically adds Lifx bulbs on the network to the Homebridge instead of tediously registering the lights individually via homekit.
-
-Individual lights can be added manually.
-
 
 This plugin will be updated regularly in the future, because I see it as a small heart task and use it personally. 
 
@@ -28,10 +27,22 @@ This plugin should fix that problem and add some extra functionality
 
 Also, lights that were not connected to the power were marked as "not responding".
 This plugin automatically sets the status of these lights to offline as soon as the light can no longer be reached.
-
+   
 I appreciate anyone who would like to use my plugin and welcome comments of any kind.
 
 Of course, sometimes no error is left out, so forgive me if you might have problems and stay tuned. Updates will follow as soon as possible!
+
+## 💡 Features
+   
+<img width="125" alt="adaptive lighting" src="https://user-images.githubusercontent.com/94163719/153251331-0889fb02-97ba-4038-affe-3a573178e32f.jpg" align="right">
+
+
+- __Adaptive Lighting__
+- __Different dim settings for brightness, color and On/Off__
+- __Addind lights automatically__
+- __Addind lights individually__
+- __Exclusions for individual bulbs__
+- __Default route for different NICs__
 
 
 ## 🚀 Quick Start
@@ -44,7 +55,7 @@ npm i homebridge-lifx-plugin
 
 or use the awesome [Homebridge Config Ui X plugin](https://www.npmjs.com/package/homebridge-config-ui-x)
    
-<img width="250" alt="Bildschirmfoto 2022-01-18 um 09 43 46" src="https://user-images.githubusercontent.com/94163719/149901919-8fcd4673-c8a9-4ba3-8b60-7b511d06a7fe.png" align="right">
+<img width="250" alt="settings" src="https://user-images.githubusercontent.com/94163719/149901919-8fcd4673-c8a9-4ba3-8b60-7b511d06a7fe.png" align="right">
   
 ### 2. **Setup**
    
@@ -170,6 +181,7 @@ You can now create exceptions for your bulbs that should not be registered with 
 - [x] Enable adding bulbs manually when autoDiscover is active
 - [x] Added exclusions for bulbs to not be registered (thanks to [L0T8](https://github.com/L0T8))
 - [x] Added default route for different NICs (thanks to [andyvirus](https://github.com/andyvirus))
+- [x] Implement adaptive Lighting (thanks to [joelrichards](https://github.com/joelrichards))
 - [ ] Separate dim settings for brightness, color and On/Off
 - [ ] Configure lights individually
 - [ ] Accessories will show as "no response" until plugin has successfully initialised
