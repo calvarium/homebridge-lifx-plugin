@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import LIFX from './products.json';
 import ProductInfo from './IProductInfo';
 export default class Bulb{
@@ -161,9 +162,11 @@ export default class Bulb{
   }
 
   async setKelvin(value: number){
-    this.States.color.hue = 0;
-    this.States.color.saturation = 0;
+    const color = this.convertHomeKitColorTemperatureToHomeKitColor(value);
+    this.States.color.hue = color.h;
+    this.States.color.saturation = color.s;
     this.States.color.kelvin = this.getKelvin(value);
+
     this.update(this.States, this.Settings.ColorDuration);
   }
 
@@ -184,8 +187,8 @@ export default class Bulb{
   }
 
   getColorTemperatur(){
-    const max = this.getKelvinRange();
-    let tmp = Math.round((640) / (max/ this.States.color.kelvin));
+    const range = this.getKelvinRange();
+    let tmp = Math.round((640) / (range.max/ this.States.color.kelvin));
     if (tmp > 500) {
       tmp = 500;
     } else if (tmp < 140) {
@@ -195,17 +198,55 @@ export default class Bulb{
   }
 
   public getKelvin(value){
-    const max = this.getKelvinRange();
-    return max - Math.round((max) / (640/value));
+    const range = this.getKelvinRange();
+    return this.convertColorTemperatureFromHomeKitToKelvin(value, range.min, range.max);
   }
 
   private getKelvinRange(){
     if (this.ProductInfo) {
-      return this.ProductInfo.features.temperature_range.reduce((a, b) => a + b);
+      return {
+        min: this.ProductInfo?.features.temperature_range[0],
+        max: this.ProductInfo?.features.temperature_range[1],
+      };
     }
-    return 10500;
+    return {min: 1500, max: 9000};
   }
 
+  private convertHomeKitColorTemperatureToHomeKitColor(value) {
+    const dKelvin = 10000 / value;
+    const rgb = [
+      dKelvin > 66 ? 351.97690566805693 + 0.114206453784165 * (dKelvin - 55) - 40.25366309332127 * Math.log(dKelvin - 55) : 255,
+      dKelvin > 66 ? 325.4494125711974 + 0.07943456536662342 * (dKelvin - 50) - 28.0852963507957 * Math.log(dKelvin - 55) : 104.49216199393888 * Math.log(dKelvin - 2) - 0.44596950469579133 * (dKelvin - 2) - 155.25485562709179,
+      dKelvin > 66 ? 255 : 115.67994401066147 * Math.log(dKelvin - 10) + 0.8274096064007395 * (dKelvin - 10) - 254.76935184120902,
+    ].map(v => Math.max(0, Math.min(255, v)) / 255);
+    const max = Math.max(...rgb);
+    const min = Math.min(...rgb);
+    let h = 0;
+    const d = max - min,
+      s = max ? 100 * d / max : 0,
+      b = 100 * max;
+
+    if (d) {
+      switch (max) {
+        case rgb[0]: h = (rgb[1] - rgb[2]) / d + (rgb[1] < rgb[2] ? 6 : 0); break;
+        case rgb[1]: h = (rgb[2] - rgb[0]) / d + 2; break;
+        default: h = (rgb[0] - rgb[1]) / d + 4; break;
+      }
+      h *= 60;
+    }
+    return {
+      h: Math.round(h),
+      s: Math.round(s),
+      b: Math.round(b),
+    };
+  }
+
+  private convertColorTemperatureFromHomeKitToKelvin(value, min, max) {
+    const scale = max;
+    const adjustedValue = (value - 71) * (max - min) / (600 - 71) + 153;
+    const convertedValue = Math.round((scale * min / (max - min)) * ((max / adjustedValue) - 1));
+    return Math.min(scale, Math.max(min, convertedValue));
+  }
 
 }
 

@@ -111,6 +111,7 @@ export class LifxPlatformAccessory {
   async setKelvin(value: CharacteristicValue){
     this.resetWatcher();
     this.bulb.setKelvin(value);
+    this.updateLightbuldCharacteristics();
     this.platform.log.debug('Set Characteristic Kelvin -> ', value);
   }
 
