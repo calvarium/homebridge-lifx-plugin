@@ -136,6 +136,10 @@ export default class Bulb{
     this.light.color(state.color.hue, state.color.saturation, state.color.brightness, state.color.kelvin, duration);
   }
 
+  updateKelvin(state, duration){
+    this.light.color(0, 0, state.color.brightness, state.color.kelvin, duration);
+  }
+
   async setOn(value) {
     this.States.power = value;
 
@@ -165,9 +169,9 @@ export default class Bulb{
     const color = this.convertHomeKitColorTemperatureToHomeKitColor(value);
     this.States.color.hue = color.h;
     this.States.color.saturation = color.s;
-    this.States.color.kelvin = this.getKelvin(value);
 
-    this.update(this.States, this.Settings.ColorDuration);
+    this.States.color.kelvin = this.getKelvin(value);
+    this.updateKelvin(this.States, this.Settings.ColorDuration);
   }
 
   getOn() {
@@ -204,6 +208,20 @@ export default class Bulb{
 
   private getKelvinRange(){
     if (this.ProductInfo) {
+      if (this.ProductInfo.upgrades.length > 0) {
+        for (const key in this.ProductInfo.upgrades) {
+          if (Object.prototype.hasOwnProperty.call(this.ProductInfo.upgrades, key)) {
+            const element = this.ProductInfo.upgrades[key];
+            const asd= element['features'];
+            if (asd['temperature_range']) {
+              return {
+                min: asd['temperature_range'][0],
+                max: asd['temperature_range'][1],
+              };
+            }
+          }
+        }
+      }
       return {
         min: this.ProductInfo?.features.temperature_range[0],
         max: this.ProductInfo?.features.temperature_range[1],
