@@ -65,7 +65,11 @@ export default class Bulb{
 
   public hasKelvin(){
     if (this.ProductInfo) {
-      return this.ProductInfo.features.temperature_range.reduce((a, b) => b - a) > 0;
+      if (this.ProductInfo.features.temperature_range) {
+        return this.ProductInfo.features.temperature_range.reduce((a, b) => b - a) > 0;
+      } 
+      
+      return false;
     }
     return this.HardwareInfo.productName !== 'LIFX Mini White';
   }
