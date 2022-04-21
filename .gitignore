@@ -120,3 +120,5 @@ dist
 .yarn/unplugged
 .yarn/build-state.yml
 .pnp.*
+.DS_Store
+homebridge-lifx-icon.png
