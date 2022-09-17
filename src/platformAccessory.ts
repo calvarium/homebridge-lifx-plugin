@@ -60,7 +60,12 @@ export class LifxPlatformAccessory {
       .onSet(this.setBrightness.bind(this));
 
     if (this.bulb.hasKelvin()) {
+      const range = this.bulb.getKelvinRange();
+      const m_min = Bulb.convertKelvinMirek(range.max);
+      const m_max = Bulb.convertKelvinMirek(range.min);
+
       this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+        .setProps({ minValue: m_min, maxValue: m_max })
         .onSet(this.setKelvin.bind(this));
 
       if (this.adaptiveLightingSupport()) {
