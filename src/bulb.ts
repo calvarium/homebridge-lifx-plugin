@@ -29,7 +29,7 @@ export default class Bulb{
   public async Init(callback, error){
     this.setFirmwareVersion(err => error(err));
     this.setHardwareInformation(() => {
-      this.ProductInfo = Bulb.getProductInfo(this.HardwareInfo.productName);
+      this.ProductInfo = Bulb.getProductInfo(this.getProductName || '');
       this.updateStates(() => {
         callback();
       });
