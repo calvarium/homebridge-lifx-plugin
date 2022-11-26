@@ -173,7 +173,8 @@ export default class Bulb{
     this.States.color.hue = color.h;
     this.States.color.saturation = color.s;
 
-    this.States.color.kelvin = Bulb.convertKelvinMirek(value);
+    const range = this.getKelvinRange();
+    this.States.color.kelvin = Math.min(Math.max(range.min, Bulb.convertKelvinMirek(value)), range.max);
     this.updateKelvin(this.States, this.Settings.ColorDuration);
   }
 
@@ -198,7 +199,7 @@ export default class Bulb{
   }
 
   public static convertKelvinMirek(value){
-    return Math.round(1000000 / value);
+    return 1000000 / value;
   }
 
   public getKelvinRange(){
