@@ -173,7 +173,8 @@ export default class Bulb{
     this.States.color.hue = color.h;
     this.States.color.saturation = color.s;
 
-    this.States.color.kelvin = this.getKelvin(value);
+    const range = this.getKelvinRange();
+    this.States.color.kelvin = Math.min(Math.max(range.min, Bulb.convertKelvinMirek(value)), range.max);
     this.updateKelvin(this.States, this.Settings.ColorDuration);
   }
 
@@ -194,22 +195,14 @@ export default class Bulb{
   }
 
   getColorTemperatur(){
-    const range = this.getKelvinRange();
-    let tmp = Math.round((640) / (range.max/ this.States.color.kelvin));
-    if (tmp > 500) {
-      tmp = 500;
-    } else if (tmp < 140) {
-      tmp = 140;
-    }
-    return tmp;
+    return Bulb.convertKelvinMirek(this.States.color.kelvin);
   }
 
-  public getKelvin(value){
-    const range = this.getKelvinRange();
-    return this.convertColorTemperatureFromHomeKitToKelvin(value, range.min, range.max);
+  public static convertKelvinMirek(value){
+    return 1000000 / value;
   }
 
-  private getKelvinRange(){
+  public getKelvinRange(){
     if (this.ProductInfo) {
       if (this.ProductInfo.upgrades.length > 0) {
         for (const key in this.ProductInfo.upgrades) {
@@ -261,13 +254,4 @@ export default class Bulb{
       b: Math.round(b),
     };
   }
-
-  private convertColorTemperatureFromHomeKitToKelvin(value, min, max) {
-    const scale = max;
-    const adjustedValue = (value - 71) * (max - min) / (600 - 71) + 153;
-    const convertedValue = Math.round((scale * min / (max - min)) * ((max / adjustedValue) - 1));
-    return Math.min(scale, Math.max(min, convertedValue));
-  }
-
 }
-
