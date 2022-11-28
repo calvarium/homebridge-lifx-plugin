@@ -842,7 +842,7 @@
       "pid": 68,
       "name": "LIFX Candle",
       "features": {
-        "color": false,
+        "color": true,
         "chain": false,
         "matrix": true,
         "infrared": false,
@@ -1241,6 +1241,358 @@
         "color": false,
         "chain": false,
         "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 115,
+      "name": "LIFX Switch",
+      "features": {
+        "color": false,
+        "relays": true,
+        "chain": false,
+        "matrix": false,
+        "buttons": true,
+        "infrared": false,
+        "multizone": false
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 116,
+      "name": "LIFX Switch",
+      "features": {
+        "color": false,
+        "relays": true,
+        "chain": false,
+        "matrix": false,
+        "buttons": true,
+        "infrared": false,
+        "multizone": false
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 117,
+      "name": "LIFX Z US",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": true,
+        "temperature_range": [
+          1500,
+          9000
+        ],
+        "extended_multizone": true
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 118,
+      "name": "LIFX Z Intl",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": true,
+        "temperature_range": [
+          1500,
+          9000
+        ],
+        "extended_multizone": true
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 119,
+      "name": "LIFX Beam US",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": true,
+        "temperature_range": [
+          1500,
+          9000
+        ],
+        "extended_multizone": true
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 120,
+      "name": "LIFX Beam Intl",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": true,
+        "temperature_range": [
+          1500,
+          9000
+        ],
+        "extended_multizone": true
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 123,
+      "name": "LIFX Color US",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 124,
+      "name": "LIFX Color Intl",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 125,
+      "name": "LIFX White to Warm US",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 126,
+      "name": "LIFX White to Warm Intl",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 127,
+      "name": "LIFX White US",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          2700,
+          2700
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 128,
+      "name": "LIFX White Intl",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          2700,
+          2700
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 129,
+      "name": "LIFX Color US",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 130,
+      "name": "LIFX Color Intl",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 131,
+      "name": "LIFX White To Warm US",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 132,
+      "name": "LIFX White To Warm Intl",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 133,
+      "name": "LIFX White US",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          2700,
+          2700
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 134,
+      "name": "LIFX White Intl",
+      "features": {
+        "color": false,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          2700,
+          2700
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 135,
+      "name": "LIFX GU10 Color US",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 136,
+      "name": "LIFX GU10 Color Intl",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": false,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 137,
+      "name": "LIFX Candle Color US",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": true,
+        "infrared": false,
+        "multizone": false,
+        "temperature_range": [
+          1500,
+          9000
+        ]
+      },
+      "upgrades": []
+    },
+    {
+      "pid": 138,
+      "name": "LIFX Candle Color Intl",
+      "features": {
+        "color": true,
+        "chain": false,
+        "matrix": true,
         "infrared": false,
         "multizone": false,
         "temperature_range": [
