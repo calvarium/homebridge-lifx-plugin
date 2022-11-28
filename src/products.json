@@ -276,7 +276,7 @@
         "infrared": false,
         "multizone": true,
         "temperature_range": [
-          2500,
+          1500,
           9000
         ]
       },
@@ -292,7 +292,7 @@
         "infrared": false,
         "multizone": true,
         "temperature_range": [
-          2500,
+          1500,
           9000
         ],
         "min_ext_mz_firmware": 1532997580,
