@@ -1,14 +1,11 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
-
 import { LifxHomebridgePlatform } from './platform';
-
 import Bulb from './bulb';
 
 export class LifxPlatformAccessory {
   private service: Service;
   private watcher;
   private adaptiveLightingController;
-
   private bulb;
 
   constructor(
@@ -19,9 +16,7 @@ export class LifxPlatformAccessory {
   ) {
 
     this.bulb = new Bulb(light, settings);
-
     this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
-
 
     this.bulb.Init(()=>{
 
@@ -43,7 +38,6 @@ export class LifxPlatformAccessory {
 
   setSoftwareCharacteristics(){
     const version = this.bulb.getVersion();
-
     if (version !== '0.0' && this.platform.config.updates) {
       const service = this.Accessory.getService(this.platform.Service.AccessoryInformation)!;
       service.addCharacteristic(this.platform.Characteristic.FirmwareRevision);
@@ -60,12 +54,8 @@ export class LifxPlatformAccessory {
       .onSet(this.setBrightness.bind(this));
 
     if (this.bulb.hasKelvin()) {
-      const range = this.bulb.getKelvinRange();
-      const m_min = Math.floor(Bulb.convertKelvinMirek(range.max));
-      const m_max = Math.ceil(Bulb.convertKelvinMirek(range.min));
-
       this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
-        .setProps({ minValue: m_min, maxValue: m_max })
+        .setProps({ minValue: this.bulb.getMinColorTemperatur(), maxValue: this.bulb.getMaxColorTemperatur() })
         .onSet(this.setKelvin.bind(this));
 
       if (this.adaptiveLightingSupport()) {
@@ -90,34 +80,30 @@ export class LifxPlatformAccessory {
   }
 
   async setOn(value: CharacteristicValue) {
-    this.resetWatcher();
-    this.bulb.setOn(value);
-    this.platform.log.debug('Set Characteristic On ->', value);
+    this.setValue('On', this.bulb.setOn, this.bulb, value);
   }
 
   async setBrightness(value: CharacteristicValue) {
-    this.resetWatcher();
-    this.bulb.setBrightness(value);
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    this.setValue('Brightness', this.bulb.setBrightness, this.bulb, value);
   }
 
   async setHue(value: CharacteristicValue){
-    this.resetWatcher();
-    this.bulb.setHue(value);
-    this.platform.log.debug('Set Characteristic Hue -> ', value);
+    this.setValue('Hue', this.bulb.setHue, this.bulb, value);
   }
 
   async setSaturation(value: CharacteristicValue){
-    this.resetWatcher();
-    this.bulb.setSaturation(value);
-    this.platform.log.debug('Set Characteristic Saturation -> ', value);
+    this.setValue('Saturation', this.bulb.setSaturation, this.bulb, value);
   }
 
   async setKelvin(value: CharacteristicValue){
+    this.setValue('Color Temperature', this.bulb.setKelvin, this.bulb, value);
+    this.updateLightbulbCharacteristics();
+  }
+
+  setValue(name, func, obj, value) {
     this.resetWatcher();
-    this.bulb.setKelvin(value);
-    this.updateLightbuldCharacteristics();
-    this.platform.log.debug('Set Characteristic Kelvin -> ', value);
+    func.call(obj, value);
+    this.platform.log.debug(`Set Characteristic ${name} -> `, value);
   }
 
   handleError(err){
@@ -129,7 +115,7 @@ export class LifxPlatformAccessory {
   async watchState(){
     this.watcher = setInterval(() => {
       this.bulb.updateStates(() => {
-        this.updateLightbuldCharacteristics();
+        this.updateLightbulbCharacteristics();
         this.platform.log.debug('updated', this.bulb.getName());
       });
     }, 5000);
@@ -142,7 +128,7 @@ export class LifxPlatformAccessory {
     this.watchState();
   }
 
-  async updateLightbuldCharacteristics(){
+  async updateLightbulbCharacteristics(){
     this.updateOn();
 
     if (this.bulb.hasColors()) {

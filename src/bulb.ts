@@ -1,19 +1,15 @@
 /* eslint-disable max-len */
 import LIFX from './products.json';
-import ProductInfo from './IProductInfo';
+import HardwareInfo from './IHardwareInfo';
+
+import {cloneDeep} from 'lodash';
 export default class Bulb{
-  private ProductInfo? : ProductInfo;
+  private HardwareInfo?: HardwareInfo;
 
   private States = {
     color: { hue: 120, saturation: 0, brightness: 100, kelvin: 8994 },
     power: 0,
     label: '',
-  };
-
-  private HardwareInfo = {
-    vendorName : 'LIFX',
-    productName : 'Unknown',
-    productFeatures : { color: false, infrared: false, multizone: false },
   };
 
   private FirmwareVersion = {
@@ -27,12 +23,12 @@ export default class Bulb{
   }
 
   public async Init(callback, error){
-    this.setFirmwareVersion(err => error(err));
-    this.setHardwareInformation(() => {
-      this.ProductInfo = Bulb.getProductInfo(this.getProductName() || '');
-      this.updateStates(() => {
-        callback();
-      });
+    this.setFirmwareVersion(() => {
+      this.setHardwareInformation(() => {
+        this.updateStates(() => {
+          callback();
+        });
+      }, err => error(err));
     }, err => error(err));
   }
 
@@ -41,36 +37,47 @@ export default class Bulb{
   }
 
   public getVersion(){
-    return this.FirmwareVersion.majorVersion + '.' + this.FirmwareVersion.minorVersion;
+    return (this.FirmwareVersion?.majorVersion || 0) + '.' + (this.FirmwareVersion?.minorVersion || 0);
   }
 
   public getSerialNumber(){
     return this.light.id;
   }
 
+  public getProductId(){
+    return this.HardwareInfo?.productId;
+  }
+
   public getVendorName(){
-    return this.HardwareInfo.vendorName;
+    return this.HardwareInfo?.vendorName;
   }
 
   public getProductName(){
-    return this.HardwareInfo.productName;
+    return this.HardwareInfo?.productName;
   }
 
   public hasColors(){
-    if (this.ProductInfo) {
-      return this.ProductInfo.features.color;
-    }
-    return this.HardwareInfo.productFeatures.color;
+    return this.HardwareInfo?.productFeatures.color;
   }
 
   public hasKelvin(){
-    if (this.ProductInfo) {
-      if (this.ProductInfo.features.temperature_range) {
-        return this.ProductInfo.features.temperature_range.reduce((a, b) => b - a) > 0;
-      }
-      return false;
-    }
-    return this.HardwareInfo.productName !== 'LIFX Mini White';
+    return this.HardwareInfo?.productFeatures.temperature_range?.reduce((a, b) => b - a) || 0 > 0;
+  }
+
+  public getMinKelvin(){
+    return Math.min(... this.HardwareInfo?.productFeatures.temperature_range || []);
+  }
+
+  public getMaxKelvin(){
+    return Math.max(... this.HardwareInfo?.productFeatures.temperature_range || []);
+  }
+
+  public getMinColorTemperatur(){
+    return Math.floor(Bulb.convertKelvinMirek(this.getMaxKelvin()));
+  }
+
+  public getMaxColorTemperatur(){
+    return Math.ceil(Bulb.convertKelvinMirek(this.getMinKelvin()));
   }
 
   async updateStates(callback){
@@ -87,23 +94,25 @@ export default class Bulb{
     });
   }
 
-  private static getProductInfo(productName) : ProductInfo{
-    return LIFX.products.find((x) => x.name === productName) as ProductInfo;
+  private static getProductInfo(id){
+    return LIFX.products.find((x) => x.pid === id);
   }
 
   private setPower(value){
     this.States.power = value;
   }
 
-  async setFirmwareVersion(error){
+  async setFirmwareVersion(callback, error){
     this.getFirmwareVersion((version) => {
       this.FirmwareVersion = version;
+      callback();
     }, (err) => error('setFirmwareVersion' + err));
   }
 
   async setHardwareInformation(callback, error){
     this.getHardwareInformation((info) => {
-      this.HardwareInfo = info;
+      this.HardwareInfo = cloneDeep(info);
+      this.assignUpgrades();
       callback();
     }, (err) => error('setHardwareInformation' + err));
   }
@@ -169,12 +178,11 @@ export default class Bulb{
   }
 
   async setKelvin(value: number){
-    const color = this.convertHomeKitColorTemperatureToHomeKitColor(value);
+    const color = Bulb.convertHomeKitColorTemperatureToHomeKitColor(value);
     this.States.color.hue = color.h;
     this.States.color.saturation = color.s;
+    this.States.color.kelvin = Math.min(Math.max(this.getMinKelvin(), Bulb.convertKelvinMirek(value)), this.getMaxKelvin());
 
-    const range = this.getKelvinRange();
-    this.States.color.kelvin = Math.min(Math.max(range.min, Bulb.convertKelvinMirek(value)), range.max);
     this.updateKelvin(this.States, this.Settings.ColorDuration);
   }
 
@@ -198,35 +206,25 @@ export default class Bulb{
     return Bulb.convertKelvinMirek(this.States.color.kelvin);
   }
 
-  public static convertKelvinMirek(value){
-    return 1000000 / value;
-  }
-
-  public getKelvinRange(){
-    if (this.ProductInfo) {
-      if (this.ProductInfo.upgrades.length > 0) {
-        for (const key in this.ProductInfo.upgrades) {
-          if (Object.prototype.hasOwnProperty.call(this.ProductInfo.upgrades, key)) {
-            const element = this.ProductInfo.upgrades[key];
-            const asd= element['features'];
-            if (asd['temperature_range']) {
-              return {
-                min: asd['temperature_range'][0],
-                max: asd['temperature_range'][1],
-              };
-            }
+  private assignUpgrades(){
+    const ProductInfo = Bulb.getProductInfo(this.HardwareInfo?.productId);
+    for (const key in ProductInfo?.upgrades) {
+      if (Object.prototype.hasOwnProperty.call(ProductInfo?.upgrades, key)) {
+        const element = ProductInfo?.upgrades[key];
+        if (this.isVersionHigherOrEqual(element)) {
+          if (this.HardwareInfo) {
+            this.HardwareInfo.productFeatures = Object.assign(this.HardwareInfo.productFeatures, element.features);
           }
         }
       }
-      return {
-        min: this.ProductInfo?.features.temperature_range[0],
-        max: this.ProductInfo?.features.temperature_range[1],
-      };
     }
-    return {min: 1500, max: 9000};
   }
 
-  private convertHomeKitColorTemperatureToHomeKitColor(value) {
+  private isVersionHigherOrEqual(version) {
+    return version.major > this.FirmwareVersion?.majorVersion || (version.major === this.FirmwareVersion?.majorVersion && version.minor <= this.FirmwareVersion?.minorVersion);
+  }
+
+  private static convertHomeKitColorTemperatureToHomeKitColor(value) {
     const dKelvin = 10000 / value;
     const rgb = [
       dKelvin > 66 ? 351.97690566805693 + 0.114206453784165 * (dKelvin - 55) - 40.25366309332127 * Math.log(dKelvin - 55) : 255,
@@ -254,4 +252,9 @@ export default class Bulb{
       b: Math.round(b),
     };
   }
+
+  private static convertKelvinMirek(value){
+    return 1000000 / value;
+  }
+
 }
