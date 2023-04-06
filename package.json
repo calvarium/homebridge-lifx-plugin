@@ -38,10 +38,12 @@
     "homekit"
   ],
   "dependencies": {
-    "lifx-lan-client": "^1.1.0"
+    "lifx-lan-client": "^1.1.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/node": "^16.10.9",
+    "@types/lodash": "^4.14.192",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
