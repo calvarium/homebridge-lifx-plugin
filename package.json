@@ -38,7 +38,7 @@
     "homekit"
   ],
   "dependencies": {
-    "lifx-lan-client": "bradrees/lifx-lan-client#feature\/switch-support"
+    "lifx-lan-client": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^16.10.9",
