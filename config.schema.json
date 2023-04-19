@@ -77,7 +77,7 @@
       },
       "updates": {
         "title": "Updates",
-        "description": "Check if you don't care about updates",
+        "description": "Check if you don't care about updates. If selected homebridge will issue a warning that the characteristic 'Firmware Revision' is not required",
         "type": "boolean",
         "default": true
       },
