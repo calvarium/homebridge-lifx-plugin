@@ -1,18 +1,12 @@
 /* eslint-disable max-len */
 import LIFX from './products.json';
-import ProductInfo from './IProductInfo';
+import HardwareInfo from './IHardwareInfo';
 export default class Switch{
-  private ProductInfo? : ProductInfo;
+  private HardwareInfo? : HardwareInfo;
 
   private States = {
     power: [0, 0, 0, 0],
     label: '',
-  };
-
-  private HardwareInfo = {
-    vendorName : 'LIFX',
-    productName : 'Unknown',
-    productFeatures : { buttons: true },
   };
 
   private FirmwareVersion = {
@@ -27,17 +21,17 @@ export default class Switch{
   }
 
   public async Init(callback, error){
-    this.setFirmwareVersion(err => error(err));
-    this.setHardwareInformation(() => {
-      this.ProductInfo = Switch.getProductInfo(this.HardwareInfo.productName);
-      this.States.label = this.name;
-      for (let i = 0; i < 4; i++) {
-        this.updateStates(i, () => {
-          if (i === 3) {
-            callback();
-          }
-        });
-      }
+    this.setFirmwareVersion(() => {
+      this.setHardwareInformation(() => {
+        this.States.label = this.name;
+        for (let i = 0; i < 4; i++) {
+          this.updateStates(i, () => {
+            if (i === 3) {
+              callback();
+            }
+          });
+        }
+      }, err => error(err));
     }, err => error(err));
   }
 
@@ -46,7 +40,7 @@ export default class Switch{
   }
 
   public getVersion(){
-    return this.FirmwareVersion.majorVersion + '.' + this.FirmwareVersion.minorVersion;
+    return (this.FirmwareVersion?.majorVersion || 0) + '.' + (this.FirmwareVersion?.minorVersion || 0);
   }
 
   public getSerialNumber(){
@@ -54,18 +48,11 @@ export default class Switch{
   }
 
   public getVendorName(){
-    return this.HardwareInfo.vendorName;
+    return this.HardwareInfo?.vendorName;
   }
 
   public getProductName(){
-    return this.HardwareInfo.productName;
-  }
-
-  public hasButtons(){
-    if (this.ProductInfo) {
-      return this.ProductInfo.features.buttons;
-    }
-    return this.HardwareInfo.productFeatures.buttons;
+    return this.HardwareInfo?.productName;
   }
 
   async updateStates(index, callback){
@@ -90,17 +77,18 @@ export default class Switch{
     });
   }
 
-  private static getProductInfo(productName) : ProductInfo{
-    return LIFX.products.find((x) => x.name === productName) as ProductInfo;
+  private static getProductInfo(id){
+    return LIFX.products.find((x) => x.pid === id);
   }
 
   private setPower(index, value){
     this.States.power[index] = value;
   }
 
-  async setFirmwareVersion(error){
+  async setFirmwareVersion(callback, error){
     this.getFirmwareVersion((version) => {
       this.FirmwareVersion = version;
+      callback();
     }, (err) => error('setFirmwareVersion' + err));
   }
 
