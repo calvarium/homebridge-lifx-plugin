@@ -57,19 +57,19 @@ export default class Bulb{
   }
 
   public hasColors(){
-    return this.HardwareInfo?.productFeatures.color;
+    return this.HardwareInfo?.productFeatures?.color;
   }
 
   public hasKelvin(){
-    return this.HardwareInfo?.productFeatures.temperature_range?.reduce((a, b) => b - a) || 0 > 0;
+    return this.HardwareInfo?.productFeatures?.temperature_range?.reduce((a, b) => b - a) || 0 > 0;
   }
 
   public getMinKelvin(){
-    return Math.min(... this.HardwareInfo?.productFeatures.temperature_range || []);
+    return Math.min(... this.HardwareInfo?.productFeatures?.temperature_range || []);
   }
 
   public getMaxKelvin(){
-    return Math.max(... this.HardwareInfo?.productFeatures.temperature_range || []);
+    return Math.max(... this.HardwareInfo?.productFeatures?.temperature_range || []);
   }
 
   public getMinColorTemperatur(){
