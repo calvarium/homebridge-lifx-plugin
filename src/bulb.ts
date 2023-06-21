@@ -208,6 +208,7 @@ export default class Bulb{
 
   private assignUpgrades(){
     const ProductInfo = Bulb.getProductInfo(this.HardwareInfo?.productId);
+    this.HardwareInfo.productFeatures = ProductInfo.features;
     for (const key in ProductInfo?.upgrades) {
       if (Object.prototype.hasOwnProperty.call(ProductInfo?.upgrades, key)) {
         const element = ProductInfo?.upgrades[key];
