@@ -61,7 +61,7 @@ export default class Bulb{
   }
 
   public hasKelvin(){
-    return this.HardwareInfo?.productFeatures.temperature_range?.reduce((a, b) => b - a) || 0 > 0;
+    return this.HardwareInfo?.productFeatures?.temperature_range?.reduce((a, b) => b - a) || 0 > 0;
   }
 
   public getMinKelvin(){
