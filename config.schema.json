@@ -132,6 +132,25 @@
           }
         }
       },
+      "switches": {
+        "type": "array",
+        "items": {
+          "title": "Switches",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "placeholder": "Enter switch name..."
+            },
+            "address": {
+              "type": "string",
+              "format": "hostname",
+              "placeholder": "xxx.xxx.xxx.xxx"
+            }
+          }
+        }
+      },
       "excludes": {
         "type": "array",
         "items": {

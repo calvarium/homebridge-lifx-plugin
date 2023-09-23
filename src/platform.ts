@@ -3,6 +3,7 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { LifxPlatformAccessory } from './platformAccessory';
+import { LifxPlatformSwitchAccessory } from './platformSwitchAccessory';
 
 import Lifx from 'lifx-lan-client';
 
@@ -14,9 +15,11 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private lifxClient: any = new Lifx.Client();
   private bulbs;
+  private switches;
 
   public readonly cachedAccessories: PlatformAccessory[] = [];
   public readonly accessories: LifxPlatformAccessory[] = [];
+  public readonly switchAccessories: LifxPlatformSwitchAccessory[] = [];
 
   constructor(
     public readonly log: Logger,
@@ -28,6 +31,10 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
 
     if (this.config.bulbs) {
       this.bulbs = this.config.bulbs.map(bulb => bulb.address);
+    }
+
+    if (this.config.switches) {
+      this.switches = this.config.switches.map(device => device.address);
     }
 
     this.api.on('didFinishLaunching', () => {
@@ -61,10 +68,17 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
       light.getLabel((err, value) => {
         this.log.debug('Light detected:', value);
         if (value) {
-          this.handleLight(light, value);
+          light.hasRelays((hasRelays) => {
+            if (hasRelays) {
+              for (let i = 0; i < 4; i++) {
+                this.handleSwitch(light, value + ' ' + (i + 1), i);
+              }
+            } else {
+              this.handleLight(light, value);
+            }
+          });
         }
       });
-
     });
 
     if (!this.config.autoDiscover) {
@@ -81,7 +95,7 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
         resendPacketDelay:      this.config.resendPacketDelay,
         resendMaxTimes:         this.config.resendMaxTimes,
         debug:                  this.config.debug,
-        lights:                 this.bulbs || [],
+        lights:                 (this.bulbs || []).concat(this.switches || []),
       });
     } catch (error) {
       this.log.error('Error initializing listener', error as string);
@@ -95,12 +109,29 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
     return this.api.hap.uuid.generate(light.id);
   }
 
+  getRelayUuid(light, index){
+    return this.api.hap.uuid.generate(index + light.id);
+  }
+
   findCachedAccessory(light){
     return this.cachedAccessories.find(accessory => accessory.UUID === this.getUuid(light));
   }
 
+  findCachedSwitchAccessory(light, index){
+    return this.cachedAccessories.find(accessory => accessory.UUID === this.getRelayUuid(light, index));
+  }
+
   registerNewAccessory(light, name){
     const accessory = new this.api.platformAccessory(name, this.getUuid(light));
+    this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    return accessory;
+  }
+
+  registerNewSwitchAccessory(light, name, index){
+    const uuid = this.getRelayUuid(light, index);
+    this.log.info('Device registered: ' + uuid);
+    this.log.info('Device name: ' + name);
+    const accessory = new this.api.platformAccessory(name, uuid);
     this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     return accessory;
   }
@@ -113,8 +144,20 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
     }));
   }
 
+  hookSwitchAccessory(accessory, light, index, name){
+    this.switchAccessories.push(new LifxPlatformSwitchAccessory(this, accessory, light, index, name, {}));
+  }
+
   removeAccessory(light){
     const accessory = this.findCachedAccessory(light);
+
+    if (accessory) {
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    }
+  }
+
+  removeSwitchAccessory(light, index){
+    const accessory = this.findCachedSwitchAccessory(light, index);
 
     if (accessory) {
       this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
@@ -133,6 +176,20 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
     }
     this.log.debug('Hooking light to accessory', name);
     this.hookAccessory(accessory, light);
+  }
+
+  handleSwitch(light, name, index){
+    let accessory = this.findCachedSwitchAccessory(light, index);
+
+    if (accessory) {
+      this.log.debug('Restoring existing accessory from cache:', name);
+
+    } else {
+      this.log.debug('Adding new accessory:', name);
+      accessory = this.registerNewSwitchAccessory(light, name, index);
+    }
+    this.log.debug('Hooking light to accessory', name);
+    this.hookSwitchAccessory(accessory, light, index, name);
   }
 
 }
