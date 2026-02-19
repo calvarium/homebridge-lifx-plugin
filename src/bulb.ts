@@ -57,7 +57,7 @@ export default class Bulb{
   }
 
   public hasColors(){
-    return this.HardwareInfo?.productFeatures.color;
+    return this.HardwareInfo?.productFeatures?.color;
   }
 
   public hasKelvin(){
@@ -65,11 +65,11 @@ export default class Bulb{
   }
 
   public getMinKelvin(){
-    return Math.min(... this.HardwareInfo?.productFeatures.temperature_range || []);
+    return Math.min(... (this.HardwareInfo?.productFeatures?.temperature_range || []));
   }
 
   public getMaxKelvin(){
-    return Math.max(... this.HardwareInfo?.productFeatures.temperature_range || []);
+    return Math.max(... (this.HardwareInfo?.productFeatures?.temperature_range || []));
   }
 
   public getMinColorTemperatur(){
