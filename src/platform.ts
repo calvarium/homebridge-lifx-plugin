@@ -66,18 +66,17 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
       }
 
       light.getLabel((err, value) => {
-        this.log.debug('Light detected:', value);
-        if (value) {
-          light.hasRelays((hasRelays) => {
-            if (hasRelays) {
-              for (let i = 0; i < 4; i++) {
-                this.handleSwitch(light, value + ' ' + (i + 1), i);
-              }
-            } else {
-              this.handleLight(light, value);
+        const label = value || light.address || 'LIFX Bulb';
+        this.log.debug('Light detected:', label);
+        light.hasRelays((hasRelays) => {
+          if (hasRelays) {
+            for (let i = 0; i < 4; i++) {
+              this.handleSwitch(light, label + ' ' + (i + 1), i);
             }
-          });
-        }
+          } else {
+            this.handleLight(light, label);
+          }
+        });
       });
     });
 
