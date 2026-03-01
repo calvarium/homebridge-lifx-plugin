@@ -124,7 +124,9 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
             // Register onGet so every future poll returns the error.
             // updateValue sets the cached statusCode for immediate effect.
             svc.getCharacteristic(this.Characteristic.On)
-              .onGet(() => { throw hapError; })
+              .onGet(() => {
+                throw hapError;
+              })
               .updateValue(hapError);
           }
           this.log.info('Marking unreachable at startup:', cached.displayName);
