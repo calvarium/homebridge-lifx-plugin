@@ -31,8 +31,8 @@ export class LifxPlatformAccessory {
 
   setHardwareCharacteristics(){
     this.Accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, this.bulb.getVendorName())
-      .setCharacteristic(this.platform.Characteristic.Model, this.bulb.getProductName())
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, this.bulb.getVendorName() ?? 'LIFX')
+      .setCharacteristic(this.platform.Characteristic.Model, this.bulb.getProductName() ?? 'Unknown')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.bulb.getSerialNumber());
   }
 

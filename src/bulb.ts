@@ -30,8 +30,28 @@ export default class Bulb{
         this.updateStates(() => {
           callback();
         });
-      }, err => error(err));
-    }, err => error(err));
+      }, err => {
+        // Hardware info could not be retrieved (e.g. unknown device, timeout).
+        // Log the error but continue so the plugin does not crash (#7, #22, #27, #34).
+        error(err);
+        this.updateStates(() => {
+          callback();
+        });
+      });
+    }, err => {
+      // Firmware version could not be retrieved – continue gracefully.
+      error(err);
+      this.setHardwareInformation(() => {
+        this.updateStates(() => {
+          callback();
+        });
+      }, hardwareErr => {
+        error(hardwareErr);
+        this.updateStates(() => {
+          callback();
+        });
+      });
+    });
   }
 
   public getName(){
@@ -67,11 +87,13 @@ export default class Bulb{
   }
 
   public getMinKelvin(){
-    return Math.min(...(this.HardwareInfo?.productFeatures?.temperature_range ?? []));
+    const min = Math.min(...(this.HardwareInfo?.productFeatures?.temperature_range ?? []));
+    return isFinite(min) ? min : 2500;
   }
 
   public getMaxKelvin(){
-    return Math.max(...(this.HardwareInfo?.productFeatures?.temperature_range ?? []));
+    const max = Math.max(...(this.HardwareInfo?.productFeatures?.temperature_range ?? []));
+    return isFinite(max) ? max : 9000;
   }
 
   public getMinColorTemperatur(){
