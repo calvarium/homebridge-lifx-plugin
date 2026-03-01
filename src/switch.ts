@@ -22,14 +22,20 @@ export default class Switch{
     private readonly Settings){
   }
 
-  public async Init(callback, error){
+  public async Init(callback: (reachable: boolean) => void, error){
     this.setFirmwareVersion(() => {
       this.setHardwareInformation(() => {
         this.States.label = this.name;
+        let completed = 0;
+        let anyReachable = false;
         for (let i = 0; i < 4; i++) {
-          this.updateStates(i, () => {
-            if (i === 3) {
-              callback();
+          this.updateStates(i, (reachable) => {
+            if (reachable) {
+              anyReachable = true;
+            }
+            completed++;
+            if (completed === 4) {
+              callback(anyReachable);
             }
           });
         }
@@ -57,17 +63,18 @@ export default class Switch{
     return this.HardwareInfo?.productName;
   }
 
-  async updateStates(index, callback){
+  async updateStates(index, callback: (reachable: boolean) => void){
     this.getStates(index, (state) => {
       if (state !== null) {
         this.setPower(index, state);
+        callback(true);
       } else {
-        this.setPower(index, 0);
+        // null state but no error – treat as unreachable.
+        callback(false);
       }
-      callback();
     }, () => {
-      this.setPower(index, 0);
-      callback();
+      // Error / timeout: keep last known state, report unreachable.
+      callback(false);
     });
 
     this.getLabel((label) => {

@@ -7,6 +7,9 @@ export class LifxPlatformAccessory {
   private watcher;
   private adaptiveLightingController;
   private bulb;
+  private isOnline = false;  // offline until Init() succeeds
+
+  public readonly lightId: string;
 
   constructor(
     private readonly platform: LifxHomebridgePlatform,
@@ -15,15 +18,29 @@ export class LifxPlatformAccessory {
     settings,
   ) {
 
+    this.lightId = light.id;
     this.bulb = new Bulb(light, settings);
     this.service = this.Accessory.getService(this.platform.Service.Lightbulb) || this.Accessory.addService(this.platform.Service.Lightbulb);
 
-    this.bulb.Init(()=>{
+    // Register onGet immediately so HomeKit gets SERVICE_COMMUNICATION_FAILURE
+    // even before Init() completes or if the bulb is unreachable at startup.
+    this.service.getCharacteristic(this.platform.Characteristic.On)
+      .onGet(this.getOn.bind(this));
+
+    this.bulb.Init((reachable)=>{
 
       this.setHardwareCharacteristics();
       this.setSoftwareCharacteristics();
       this.bindFunctions();
-      this.resetWatcher();
+
+      if (reachable) {
+        this.isOnline = true;
+        this.resetWatcher();
+      } else {
+        // Bulb did not respond during Init – mark as not responding immediately.
+        this.markNotResponding();
+        this.platform.log.info('Device unreachable at startup:', this.bulb.getName());
+      }
 
     }, (error) => this.handleError(error));
 
@@ -48,8 +65,8 @@ export class LifxPlatformAccessory {
 
   bindFunctions(){
     this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this)) ;
-
+      .onGet(this.getOn.bind(this))
+      .onSet(this.setOn.bind(this));
     this.service.getCharacteristic(this.platform.Characteristic.Brightness)
       .onSet(this.setBrightness.bind(this));
 
@@ -77,6 +94,15 @@ export class LifxPlatformAccessory {
       this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Hue));
       this.service.removeCharacteristic(this.service.getCharacteristic(this.platform.Characteristic.Saturation));
     }
+  }
+
+  async getOn(): Promise<CharacteristicValue> {
+    if (!this.isOnline) {
+      throw new this.platform.api.hap.HapStatusError(
+        this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+      );
+    }
+    return this.bulb.getOn();
   }
 
   async setOn(value: CharacteristicValue) {
@@ -108,13 +134,57 @@ export class LifxPlatformAccessory {
 
   handleError(err){
     this.platform.log.warn('Bulb ' + this.bulb.getName() + ' throughs error', err);
-    // if you need to return an error to show the device as "Not Responding" in the Home app:
-    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+  }
+
+  /**
+   * Marks the accessory as offline and notifies HomeKit immediately.
+   * updateValue(Error) only sets the statusCode but does NOT emit a change
+   * event, so HomeKit never gets notified proactively. We therefore first
+   * force a change event (by flipping the value) so HomeKit re-polls, and
+   * the onGet handler will then return SERVICE_COMMUNICATION_FAILURE.
+   */
+  private markNotResponding() {
+    // Set the HAP statusCode to SERVICE_COMMUNICATION_FAILURE (-70402).
+    // The next time HomeKit polls this characteristic (Home app opened, Siri,
+    // automation etc.) the onGet handler will throw a HapStatusError and
+    // HomeKit will show "No Response". HAP event notifications only carry
+    // values, not error codes, so there is no way to proactively push this.
+    const hapError = new this.platform.api.hap.HapStatusError(
+      this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    );
+    this.service.getCharacteristic(this.platform.Characteristic.On)
+      .updateValue(hapError);
+  }
+
+  setOffline(){
+    if (!this.isOnline) {
+      return;
+    }
+    this.isOnline = false;
+    clearInterval(this.watcher);
+    this.watcher = undefined;
+    this.markNotResponding();
+    this.platform.log.info('Device offline:', this.bulb.getName());
+  }
+
+  setOnline(){
+    if (this.isOnline) {
+      return;
+    }
+    this.isOnline = true;
+    this.resetWatcher();
+    this.platform.log.info('Device online:', this.bulb.getName());
   }
 
   async watchState(){
     this.watcher = setInterval(() => {
-      this.bulb.updateStates(() => {
+      this.bulb.updateStates((reachable) => {
+        if (!reachable) {
+          // Lampe antwortet nicht mehr – sofort offline schalten.
+          // setOffline() stoppt auch diesen Watcher.
+          this.setOffline();
+          return;
+        }
         this.updateLightbulbCharacteristics();
         this.platform.log.debug('updated', this.bulb.getName());
       });
@@ -129,6 +199,13 @@ export class LifxPlatformAccessory {
   }
 
   async updateLightbulbCharacteristics(){
+    // Do not push any value updates while offline – doing so would reset the
+    // HAP statusCode to SUCCESS and make HomeKit show "Off" instead of
+    // "Not Responding".
+    if (!this.isOnline) {
+      return;
+    }
+
     this.updateOn();
 
     if (this.bulb.hasColors()) {

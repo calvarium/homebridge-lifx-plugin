@@ -24,31 +24,31 @@ export default class Bulb{
     private readonly Settings){
   }
 
-  public async Init(callback, error){
+  public async Init(callback: (reachable: boolean) => void, error){
     this.setFirmwareVersion(() => {
       this.setHardwareInformation(() => {
-        this.updateStates(() => {
-          callback();
+        this.updateStates((reachable) => {
+          callback(reachable);
         });
       }, err => {
         // Hardware info could not be retrieved (e.g. unknown device, timeout).
         // Log the error but continue so the plugin does not crash (#7, #22, #27, #34).
         error(err);
-        this.updateStates(() => {
-          callback();
+        this.updateStates((reachable) => {
+          callback(reachable);
         });
       });
     }, err => {
       // Firmware version could not be retrieved – continue gracefully.
       error(err);
       this.setHardwareInformation(() => {
-        this.updateStates(() => {
-          callback();
+        this.updateStates((reachable) => {
+          callback(reachable);
         });
       }, hardwareErr => {
         error(hardwareErr);
-        this.updateStates(() => {
-          callback();
+        this.updateStates((reachable) => {
+          callback(reachable);
         });
       });
     });
@@ -104,17 +104,18 @@ export default class Bulb{
     return Math.ceil(Bulb.convertKelvinMirek(this.getMinKelvin()));
   }
 
-  async updateStates(callback){
+  async updateStates(callback: (reachable: boolean) => void){
     this.getStates((state) => {
       if (state !== null && state?.color) {
         this.States = state;
-      }else{
-        this.setPower(0);
+        callback(true);
+      } else {
+        // State was null/invalid but no error – treat as unreachable to be safe.
+        callback(false);
       }
-      callback();
     }, () => {
-      this.setPower(0);
-      callback();
+      // Error / timeout: keep last known state, report unreachable.
+      callback(false);
     });
   }
 

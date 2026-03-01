@@ -10,6 +10,9 @@ export class LifxPlatformSwitchAccessory {
 
   private device;
   private readonly index;
+  private isOnline = false;  // offline until Init() succeeds
+
+  public readonly lightId: string;
 
   constructor(
     private readonly platform: LifxHomebridgePlatform,
@@ -22,16 +25,29 @@ export class LifxPlatformSwitchAccessory {
 
     this.device = new Switch(light, name, settings);
     this.index = relayIndex;
+    this.lightId = light.id;
 
     this.service = this.Accessory.getService(this.platform.Service.Switch) || this.Accessory.addService(this.platform.Service.Switch);
 
+    // Register onGet immediately so HomeKit gets SERVICE_COMMUNICATION_FAILURE
+    // even before Init() completes or if the device is unreachable at startup.
+    this.service.getCharacteristic(this.platform.Characteristic.On)
+      .onGet(this.getOn.bind(this));
 
-    this.device.Init(()=>{
+    this.device.Init((reachable)=>{
 
       this.setHardwareCharacteristics();
       this.setSoftwareCharacteristics();
       this.bindFunctions();
-      this.resetWatcher();
+
+      if (reachable) {
+        this.isOnline = true;
+        this.resetWatcher();
+      } else {
+        // Device did not respond during Init – mark as not responding immediately.
+        this.markNotResponding();
+        this.platform.log.info('Device unreachable at startup:', this.getName());
+      }
 
     }, (error) => this.handleError(error));
 
@@ -57,7 +73,17 @@ export class LifxPlatformSwitchAccessory {
 
   bindFunctions(){
     this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this)) ;
+      .onGet(this.getOn.bind(this))
+      .onSet(this.setOn.bind(this));
+  }
+
+  async getOn(): Promise<CharacteristicValue> {
+    if (!this.isOnline) {
+      throw new this.platform.api.hap.HapStatusError(
+        this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+      );
+    }
+    return this.device.getOn(this.index);
   }
 
   async setOn(value: CharacteristicValue) {
@@ -68,13 +94,43 @@ export class LifxPlatformSwitchAccessory {
 
   handleError(err){
     this.platform.log.warn('Bulb ' + this.getName() + ' throughs error', err);
-    // if you need to return an error to show the device as "Not Responding" in the Home app:
-    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+  }
+
+  private markNotResponding() {
+    const hapError = new this.platform.api.hap.HapStatusError(
+      this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    );
+    this.service.getCharacteristic(this.platform.Characteristic.On)
+      .updateValue(hapError);
+  }
+
+  setOffline(){
+    if (!this.isOnline) {
+      return;
+    }
+    this.isOnline = false;
+    clearInterval(this.watcher);
+    this.watcher = undefined;
+    this.markNotResponding();
+    this.platform.log.info('Device offline:', this.getName());
+  }
+
+  setOnline(){
+    if (this.isOnline) {
+      return;
+    }
+    this.isOnline = true;
+    this.resetWatcher();
+    this.platform.log.info('Device online:', this.getName());
   }
 
   async watchState(){
     this.watcher = setInterval(() => {
-      this.device.updateStates(this.index, () => {
+      this.device.updateStates(this.index, (reachable) => {
+        if (!reachable) {
+          this.setOffline();
+          return;
+        }
         this.updateLightbuldCharacteristics();
         this.platform.log.debug('updated', this.getName());
       });
@@ -89,6 +145,9 @@ export class LifxPlatformSwitchAccessory {
   }
 
   async updateLightbuldCharacteristics(){
+    if (!this.isOnline) {
+      return;
+    }
     this.updateOn();
   }
 

@@ -80,6 +80,58 @@ export class LifxHomebridgePlatform implements DynamicPlatformPlugin {
       });
     });
 
+    this.lifxClient.on('light-offline', (light) => {
+      this.log.info('Light offline:', light.id);
+      this.accessories
+        .filter(a => a.lightId === light.id)
+        .forEach(a => a.setOffline());
+      this.switchAccessories
+        .filter(a => a.lightId === light.id)
+        .forEach(a => a.setOffline());
+    });
+
+    this.lifxClient.on('light-online', (light) => {
+      this.log.info('Light online:', light.id);
+      this.accessories
+        .filter(a => a.lightId === light.id)
+        .forEach(a => a.setOnline());
+      this.switchAccessories
+        .filter(a => a.lightId === light.id)
+        .forEach(a => a.setOnline());
+    });
+
+    // After the initial discovery window, mark any cached accessory that never
+    // got a light-new event (i.e. the bulb was completely unreachable at startup)
+    // as SERVICE_COMMUNICATION_FAILURE so HomeKit shows "Not Responding".
+    // lightOfflineTolerance (default 3) × discoveryInterval (5 s) = ~15 s.
+    const discoveryWindowMs = ((this.config.lightOfflineTolerance ?? 3) + 1) * 5000;
+    setTimeout(() => {
+      for (const cached of this.cachedAccessories) {
+        const alreadyHooked =
+          this.accessories.some(a => a.Accessory.UUID === cached.UUID) ||
+          this.switchAccessories.some(a => a.Accessory.UUID === cached.UUID);
+        if (!alreadyHooked) {
+          const hapError = new this.api.hap.HapStatusError(
+            this.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+          );
+          for (const svc of [
+            cached.getService(this.Service.Lightbulb),
+            cached.getService(this.Service.Switch),
+          ]) {
+            if (!svc) {
+              continue;
+            }
+            // Register onGet so every future poll returns the error.
+            // updateValue sets the cached statusCode for immediate effect.
+            svc.getCharacteristic(this.Characteristic.On)
+              .onGet(() => { throw hapError; })
+              .updateValue(hapError);
+          }
+          this.log.info('Marking unreachable at startup:', cached.displayName);
+        }
+      }
+    }, discoveryWindowMs);
+
     if (!this.config.autoDiscover) {
       this.config.broadcast = '0.0.0.0';
     }
