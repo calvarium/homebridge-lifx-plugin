@@ -238,7 +238,8 @@ export default class Bulb{
   }
 
   getColorTemperatur(){
-    return Bulb.convertKelvinMirek(this.States.color.kelvin);
+    const mired = Bulb.convertKelvinMirek(this.States.color.kelvin);
+    return Math.min(Math.max(this.getMinColorTemperatur(), mired), this.getMaxColorTemperatur());
   }
 
   private assignUpgrades(){
