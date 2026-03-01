@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
-import LIFX from './products.json';
+import LIFX_RAW from 'lifx-lan-client/src/lifx/products.json';
 import HardwareInfo from './IHardwareInfo';
+
+const LIFX = { products: LIFX_RAW[0].products };
 
 import {cloneDeep} from 'lodash';
 export default class Bulb{
@@ -150,10 +152,16 @@ export default class Bulb{
   }
 
   update(state, duration){
+    if (!state?.color) {
+      return;
+    }
     this.light.color(state.color.hue, state.color.saturation, state.color.brightness, state.color.kelvin, duration);
   }
 
   updateKelvin(state, duration){
+    if (!state?.color) {
+      return;
+    }
     this.light.color(0, 0, state.color.brightness, state.color.kelvin, duration);
   }
 

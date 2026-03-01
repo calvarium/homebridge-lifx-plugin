@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
-import LIFX from './products.json';
+import LIFX_RAW from 'lifx-lan-client/src/lifx/products.json';
 import HardwareInfo from './IHardwareInfo';
+
+const LIFX = { products: LIFX_RAW[0].products };
 export default class Switch{
   private HardwareInfo? : HardwareInfo;
 
