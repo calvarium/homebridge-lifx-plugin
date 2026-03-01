@@ -57,19 +57,19 @@ export default class Bulb{
   }
 
   public hasColors(){
-    return this.HardwareInfo?.productFeatures.color;
+    return this.HardwareInfo?.productFeatures?.color ?? false;
   }
 
   public hasKelvin(){
-    return this.HardwareInfo?.productFeatures?.temperature_range?.reduce((a, b) => b - a) || 0 > 0;
+    return (this.HardwareInfo?.productFeatures?.temperature_range?.reduce((a, b) => b - a) ?? 0) > 0;
   }
 
   public getMinKelvin(){
-    return Math.min(... this.HardwareInfo?.productFeatures.temperature_range || []);
+    return Math.min(...(this.HardwareInfo?.productFeatures?.temperature_range ?? []));
   }
 
   public getMaxKelvin(){
-    return Math.max(... this.HardwareInfo?.productFeatures.temperature_range || []);
+    return Math.max(...(this.HardwareInfo?.productFeatures?.temperature_range ?? []));
   }
 
   public getMinColorTemperatur(){
@@ -82,7 +82,7 @@ export default class Bulb{
 
   async updateStates(callback){
     this.getStates((state) => {
-      if (state !== null) {
+      if (state !== null && state?.color) {
         this.States = state;
       }else{
         this.setPower(0);
@@ -111,8 +111,10 @@ export default class Bulb{
 
   async setHardwareInformation(callback, error){
     this.getHardwareInformation((info) => {
-      this.HardwareInfo = cloneDeep(info);
-      this.assignUpgrades();
+      if (info) {
+        this.HardwareInfo = cloneDeep(info);
+        this.assignUpgrades();
+      }
       callback();
     }, (err) => error('setHardwareInformation' + err));
   }
@@ -121,6 +123,7 @@ export default class Bulb{
     this.light.getState((err, value) => {
       if (err) {
         errorFallback(err);
+        return;
       }
       callback(value);
     });
@@ -130,6 +133,7 @@ export default class Bulb{
     this.light.getHardwareVersion((err, value) => {
       if (err) {
         errorFallback(err);
+        return;
       }
       callback(value);
     });
@@ -139,6 +143,7 @@ export default class Bulb{
     this.light.getFirmwareVersion((err, value) => {
       if (err) {
         errorFallback(err);
+        return;
       }
       callback(value);
     });
@@ -212,7 +217,7 @@ export default class Bulb{
       if (Object.prototype.hasOwnProperty.call(ProductInfo?.upgrades, key)) {
         const element = ProductInfo?.upgrades[key];
         if (this.isVersionHigherOrEqual(element)) {
-          if (this.HardwareInfo) {
+          if (this.HardwareInfo && this.HardwareInfo.productFeatures) {
             this.HardwareInfo.productFeatures = Object.assign(this.HardwareInfo.productFeatures, element.features);
           }
         }

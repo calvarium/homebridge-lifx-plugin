@@ -3,7 +3,7 @@ export default interface HardwareInfo{
         productId: number;
         vendorName: string;
         productName: string;
-        productFeatures: {
+        productFeatures?: {
             color: boolean;
             chain: boolean;
             matrix: boolean;
